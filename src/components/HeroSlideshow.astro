@@ -1,0 +1,125 @@
+---
+// 6-photo slideshow: crossfade + slow Ken Burns zoom, autoplay, pauses on hover.
+// Drop real JPGs/WebPs into public/images/slideshow/ named slide-1.jpg .. slide-6.jpg
+// (or update the `slides` array below with different filenames/captions).
+
+interface Slide {
+  src: string;
+  alt: string;
+}
+
+const slides: Slide[] = [
+  { src: '/images/slideshow/slide-1.jpg', alt: 'Children receiving education support' },
+  { src: '/images/slideshow/slide-2.jpg', alt: 'A warm meal being shared' },
+  { src: '/images/slideshow/slide-3.jpg', alt: 'Safe shelter for a child' },
+  { src: '/images/slideshow/slide-4.jpg', alt: 'Medical care and checkups' },
+  { src: '/images/slideshow/slide-5.jpg', alt: 'Mentorship and guidance' },
+  { src: '/images/slideshow/slide-6.jpg', alt: 'Children smiling together' },
+];
+---
+
+<div class="hero-slideshow relative w-full h-[60vh] md:h-[75vh] overflow-hidden rounded-3xl" id="hero-slideshow">
+  {slides.map((slide, i) => (
+    <div
+      class="slide absolute inset-0 opacity-0 transition-opacity duration-[1500ms] ease-in-out"
+      data-index={i}
+    >
+      <img
+        src={slide.src}
+        alt={slide.alt}
+        loading={i === 0 ? 'eager' : 'lazy'}
+        class="slide-img w-full h-full object-cover"
+        onerror="this.parentElement.classList.add('img-missing')"
+      />
+      <!-- Fallback shown only if the real photo file hasn't been added yet -->
+      <div class="img-fallback absolute inset-0 hidden items-center justify-center bg-olive/20 text-umber/50 text-sm px-6 text-center">
+        {slide.alt} — add public{slide.src}
+      </div>
+    </div>
+  ))}
+
+  <!-- Dark gradient so any future overlay text stays legible -->
+  <div class="absolute inset-0 bg-gradient-to-t from-umber/40 via-transparent to-transparent pointer-events-none"></div>
+
+  <!-- Dots -->
+  <div class="absolute bottom-5 inset-x-0 flex justify-center gap-2">
+    {slides.map((_, i) => (
+      <button
+        class="dot w-2.5 h-2.5 rounded-full bg-ivory/50 hover:bg-ivory transition-colors"
+        data-goto={i}
+        aria-label={`Go to slide ${i + 1}`}
+      ></button>
+    ))}
+  </div>
+</div>
+
+<style>
+  .slide.active {
+    opacity: 1;
+  }
+  .slide-img {
+    animation: kenburns 9s ease-in-out forwards;
+  }
+  @keyframes kenburns {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.08); }
+  }
+  .img-missing .slide-img {
+    display: none;
+  }
+  .img-missing .img-fallback {
+    display: flex;
+  }
+  .dot.active {
+    background-color: var(--color-marigold, #f2a93b);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .slide-img {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  const root = document.getElementById('hero-slideshow');
+  if (root) {
+    const slideEls = Array.from(root.querySelectorAll<HTMLElement>('.slide'));
+    const dotEls = Array.from(root.querySelectorAll<HTMLElement>('.dot'));
+    let current = 0;
+    let timer: ReturnType<typeof setInterval>;
+
+    const show = (index: number) => {
+      slideEls.forEach((el, i) => el.classList.toggle('active', i === index));
+      dotEls.forEach((el, i) => el.classList.toggle('active', i === index));
+      // restart Ken Burns zoom on the newly active slide
+      const img = slideEls[index].querySelector<HTMLElement>('.slide-img');
+      if (img) {
+        img.style.animation = 'none';
+        void img.offsetWidth; // force reflow to restart animation
+        img.style.animation = '';
+      }
+      current = index;
+    };
+
+    const next = () => show((current + 1) % slideEls.length);
+
+    const start = () => {
+      timer = setInterval(next, 5000);
+    };
+    const stop = () => clearInterval(timer);
+
+    dotEls.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        show(i);
+        stop();
+        start();
+      });
+    });
+
+    root.addEventListener('mouseenter', stop);
+    root.addEventListener('mouseleave', start);
+
+    show(0);
+    start();
+  }
+</script>

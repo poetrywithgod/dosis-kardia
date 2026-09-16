@@ -1,0 +1,91 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PhotoCard from '../components/PhotoCard.astro';
+import { BookOpen, UtensilsCrossed, Home, Stethoscope, HandHeart } from '@lucide/astro';
+
+const programs = [
+  {
+    name: 'Education',
+    slug: 'education',
+    icon: BookOpen,
+    blurb: 'Building minds for a better tomorrow.',
+    detail:
+      'We provide learning materials and guidance so children can take their first steps toward a brighter future, whatever their starting point.',
+  },
+  {
+    name: 'Food',
+    slug: 'food',
+    icon: UtensilsCrossed,
+    blurb: 'Nourishing bodies, restoring hope.',
+    detail:
+      'We distribute food and basic necessities so no child goes to bed hungry, meeting one of the most immediate and urgent needs first.',
+  },
+  {
+    name: 'Shelter',
+    slug: 'shelter',
+    icon: Home,
+    blurb: 'A safe place to call home.',
+    detail:
+      'We work to facilitate safe shelter and protection for children who have no roof, no parental care, and nowhere else to turn.',
+  },
+  {
+    name: 'Medical Care',
+    slug: 'medical-care',
+    icon: Stethoscope,
+    blurb: 'Health and healing for a brighter future.',
+    detail:
+      'We facilitate access to basic healthcare, addressing urgent medical needs and promoting the overall well-being of every child we reach.',
+  },
+  {
+    name: 'Guidance',
+    slug: 'guidance',
+    icon: HandHeart,
+    blurb: 'Mentorship and value-based support.',
+    detail:
+      'We mentor and guide children toward responsible, purposeful living — helping them rediscover their identity beyond survival.',
+  },
+];
+---
+
+<Layout
+  title="Programs"
+  description="Explore Dosis Kardia Foundation's five programs: education, food, shelter, medical care, and guidance for vulnerable children."
+>
+  <section class="pt-40 pb-16 px-6 max-w-3xl mx-auto text-center">
+    <h1 class="font-display text-4xl md:text-5xl text-umber font-semibold">
+      Five ways we show up for a child.
+    </h1>
+    <p class="mt-6 text-ink/70 leading-relaxed">
+      We go beyond temporary relief — we create lasting change, nurturing not
+      just physical needs but emotional and spiritual well-being too.
+    </p>
+  </section>
+
+  <section class="max-w-5xl mx-auto px-6 pb-24 space-y-6">
+    {programs.map((p, i) => (
+      <div
+        class:list={[
+          'flex flex-col md:flex-row gap-6 md:gap-8 items-stretch rounded-2xl p-6 md:p-8 border border-umber/10 overflow-hidden',
+          i % 2 === 0 ? 'bg-white/60' : 'bg-marigold/10',
+        ]}
+      >
+        <div class="md:w-56 shrink-0">
+          <PhotoCard
+            src={`/images/programs/${p.slug}.jpg`}
+            alt={`Dosis Kardia's ${p.name} program`}
+            aspect="aspect-[4/3]"
+            class="h-full"
+          />
+        </div>
+        <div class="flex-1">
+          <div class="text-clay mb-3">
+            <p.icon size={36} strokeWidth={1.75} />
+          </div>
+          <h2 class="font-display text-2xl text-umber mb-1">{p.name}</h2>
+          <p class="text-clay text-sm font-medium mb-3">{p.blurb}</p>
+          <p class="text-ink/70 text-sm leading-relaxed">{p.detail}</p>
+        </div>
+      </div>
+    ))}
+  </section>
+</Layout>

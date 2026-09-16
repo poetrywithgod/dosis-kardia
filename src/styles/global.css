@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  /* Color palette — grounded in Dosis Kardia's existing brand */
+  --color-umber: #2B2318;       /* deep warm near-black — headers, footer */
+  --color-marigold: #F2A93B;    /* primary accent — brand gold/orange */
+  --color-clay: #C1481D;        /* secondary accent — donate CTAs */
+  --color-ivory: #FBF6EC;       /* warm background */
+  --color-olive: #4A5D45;       /* quiet supporting accent, from foliage in photos */
+  --color-ink: #1C1C1C;         /* body text, near-black not pure black */
+
+  /* Type */
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "General Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Caveat", cursive;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-ivory);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* The one orchestrated motion moment: the hero heartbeat */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.heartbeat {
+  animation: heartbeat 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heartbeat {
+    animation: none;
+  }
+}

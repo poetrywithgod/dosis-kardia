@@ -1,0 +1,53 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PhotoCard from '../components/PhotoCard.astro';
+---
+
+<Layout
+  title="Impact"
+  description="See the impact Dosis Kardia Foundation has made in the lives of vulnerable, street-connected children in Port Harcourt, Nigeria."
+>
+  <section class="pt-40 pb-16 px-6 max-w-3xl mx-auto text-center">
+    <h1 class="font-display text-4xl md:text-5xl text-umber font-semibold">
+      The power of giving.
+    </h1>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-6 pb-24 text-ink/75 leading-relaxed space-y-5">
+    <p>
+      Since the inception of Dosis Kardia Foundation, we have distributed
+      food and basic necessities to help meet children's daily needs,
+      ensuring that no child goes to bed hungry.
+    </p>
+
+    <div class="grid sm:grid-cols-2 gap-4">
+      <PhotoCard src="/images/impact/gallery-1.jpg" alt="Food distribution to children" aspect="aspect-[4/3]" />
+      <PhotoCard src="/images/impact/gallery-2.jpg" alt="Children with learning materials" aspect="aspect-[4/3]" />
+    </div>
+
+    <p>
+      We have supported access to education by providing learning materials
+      and guidance, helping children take their first steps toward a
+      brighter future.
+    </p>
+    <p>
+      Through our initiatives, we have also facilitated access to basic
+      healthcare, addressing urgent medical needs and promoting overall
+      well-being.
+    </p>
+
+    <PhotoCard
+      src="/images/impact/gallery-3.jpg"
+      alt="A child receiving medical care"
+      aspect="aspect-[16/7]"
+    />
+
+    <div class="bg-marigold/10 border border-marigold/30 rounded-xl p-6 text-sm text-umber/80 not-italic mt-10">
+      <strong>Note for the client:</strong> this page is written narratively
+      for now, since we don't yet have hard numbers (children reached, meals
+      served, dates). Once you share real figures, we can add a stats/counter
+      section here — the same count-up animation already used on the
+      homepage — for stronger credibility with donors.
+    </div>
+  </section>
+</Layout>

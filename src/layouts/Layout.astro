@@ -1,0 +1,117 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const siteName = "Dosis Kardia Foundation";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <title>{title} · {siteName}</title>
+    <meta name="description" content={description} />
+
+    <!-- Open Graph / social -->
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=Caveat:wght@600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-ivory text-ink font-body antialiased">
+    <header class="fixed top-0 inset-x-0 z-50 transition-all duration-300" id="site-header">
+      <nav class="max-w-6xl mx-auto flex items-center justify-between px-6 py-3 mt-3 rounded-2xl bg-ivory/60 backdrop-blur-xl border border-white/40 shadow-[0_4px_24px_-4px_rgba(43,35,24,0.08)] transition-all duration-300" id="glass-nav">
+        <a href="/" class="flex items-center">
+          <img src="/logo.png" alt="Dosis Kardia Foundation" class="h-10 md:h-12 w-auto" />
+        </a>
+        <div class="hidden md:flex items-center gap-8 text-sm font-medium text-umber">
+          <a href="/about" class="hover:text-clay transition-colors">About</a>
+          <a href="/programs" class="hover:text-clay transition-colors">Programs</a>
+          <a href="/impact" class="hover:text-clay transition-colors">Impact</a>
+          <a href="/contact" class="hover:text-clay transition-colors">Contact</a>
+        </div>
+        <a
+          href="/donate"
+          class="bg-clay text-ivory px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-umber transition-colors"
+        >
+          Donate
+        </a>
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="bg-umber text-ivory/80 mt-24">
+      <div class="max-w-6xl mx-auto px-6 py-14 grid gap-10 md:grid-cols-3">
+        <div>
+          <div class="inline-block bg-ivory rounded-xl px-3 py-2 mb-4">
+            <img src="/logo.png" alt="Dosis Kardia Foundation" class="h-9 w-auto" />
+          </div>
+          <p class="text-sm leading-relaxed">
+            Hope for a lifetime — restoring dignity, purpose, and opportunity to
+            vulnerable children in Port Harcourt, Nigeria.
+          </p>
+          <p class="text-xs text-ivory/50 mt-4">RC: 164807</p>
+        </div>
+        <div>
+          <p class="text-ivory font-semibold mb-3 text-sm">Contact</p>
+          <ul class="text-sm space-y-2">
+            <li><a href="mailto:givingheartfoundation.ghf@gmail.com" class="hover:text-marigold transition-colors">givingheartfoundation.ghf@gmail.com</a></li>
+            <li>Port Harcourt, Nigeria</li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-ivory font-semibold mb-3 text-sm">Quick links</p>
+          <ul class="text-sm space-y-2">
+            <li><a href="/about" class="hover:text-marigold transition-colors">About us</a></li>
+            <li><a href="/programs" class="hover:text-marigold transition-colors">Our programs</a></li>
+            <li><a href="/donate" class="hover:text-marigold transition-colors">Donate</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-ivory/10 text-center text-xs text-ivory/40 py-5">
+        © {new Date().getFullYear()} Dosis Kardia Foundation. All rights reserved.
+      </div>
+    </footer>
+
+    <script>
+      // Deepen the glass effect once scrolled — nav is always glassmorphic,
+      // this just increases opacity/blur so it reads clearly over busy content
+      const nav = document.getElementById('glass-nav');
+      const onScroll = () => {
+        if (!nav) return;
+        if (window.scrollY > 40) {
+          nav.classList.add('bg-ivory/85', 'shadow-[0_8px_30px_-4px_rgba(43,35,24,0.15)]');
+          nav.classList.remove('bg-ivory/60', 'shadow-[0_4px_24px_-4px_rgba(43,35,24,0.08)]');
+        } else {
+          nav.classList.remove('bg-ivory/85', 'shadow-[0_8px_30px_-4px_rgba(43,35,24,0.15)]');
+          nav.classList.add('bg-ivory/60', 'shadow-[0_4px_24px_-4px_rgba(43,35,24,0.08)]');
+        }
+      };
+      document.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    </script>
+  </body>
+</html>

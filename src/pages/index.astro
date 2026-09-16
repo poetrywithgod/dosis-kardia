@@ -1,0 +1,160 @@
+---
+import Layout from '../layouts/Layout.astro';
+import HeroSlideshow from '../components/HeroSlideshow.astro';
+import PhotoCard from '../components/PhotoCard.astro';
+import { BookOpen, UtensilsCrossed, Home, Stethoscope, HandHeart, HeartPulse, ArrowRight } from '@lucide/astro';
+
+const pillars = [
+  { name: 'Education', blurb: 'Building minds for a better tomorrow.', icon: BookOpen },
+  { name: 'Food', blurb: 'Nourishing bodies, restoring hope.', icon: UtensilsCrossed },
+  { name: 'Shelter', blurb: 'A safe place to call home.', icon: Home },
+  { name: 'Medical Care', blurb: 'Health and healing for a brighter future.', icon: Stethoscope },
+  { name: 'Guidance', blurb: 'Mentorship and value-based support.', icon: HandHeart },
+];
+---
+
+<Layout
+  title="Home"
+  description="Dosis Kardia Foundation gives vulnerable, street-connected children in Port Harcourt, Nigeria access to education, food, shelter, medical care, and mentorship."
+>
+  <!-- Hero -->
+  <section class="relative overflow-hidden pt-40 pb-28 px-6 text-center bg-ivory">
+    <p class="font-script text-clay text-2xl mb-2">Hope for a Lifetime</p>
+    <h1 class="font-display text-4xl md:text-6xl font-semibold text-umber max-w-3xl mx-auto leading-tight">
+      Every child deserves a heartbeat that's heard.
+    </h1>
+    <p class="mt-6 text-lg text-ink/70 max-w-xl mx-auto">
+      We give street-connected children in Port Harcourt a path back to
+      dignity — through education, food, shelter, medical care, and guidance.
+    </p>
+
+    <div class="mt-9 flex items-center justify-center gap-4">
+      <a href="/donate" class="bg-clay text-ivory px-7 py-3 rounded-full font-semibold hover:bg-umber transition-colors">
+        Donate now
+      </a>
+      <a href="/about" class="text-umber font-semibold px-7 py-3 rounded-full border border-umber/20 hover:bg-umber/5 transition-colors">
+        Learn more
+      </a>
+    </div>
+
+    <!-- Photo slideshow, with the heartbeat mark as a small accent badge -->
+    <div class="mt-16 max-w-5xl mx-auto px-6 relative">
+      <HeroSlideshow />
+      <div
+        class="heartbeat absolute -top-6 -right-2 md:right-6 w-16 h-16 md:w-20 md:h-20 rounded-full bg-marigold flex items-center justify-center drop-shadow-lg"
+        aria-hidden="true"
+      >
+        <HeartPulse size={32} strokeWidth={2} class="text-umber md:w-9 md:h-9" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Who we are -->
+  <section class="max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
+    <div>
+      <h2 class="font-display text-3xl text-umber mb-4">Who we are</h2>
+      <p class="text-ink/75 leading-relaxed">
+        Dosis Kardia Foundation is a faith-driven non-profit committed to
+        reaching vulnerable children living on the streets with no parental
+        care or support. Founded by the Agagu Family, we go beyond temporary
+        relief — we create lasting change, rebuilding stability, identity,
+        and purpose, one child at a time.
+      </p>
+      <a href="/about" class="inline-flex items-center gap-1.5 mt-6 text-clay font-semibold hover:text-umber transition-colors group">
+        Read our full story
+        <ArrowRight size={18} class="transition-transform group-hover:translate-x-1" />
+      </a>
+    </div>
+    <div class="rounded-2xl overflow-hidden">
+      <PhotoCard src="/images/home/who-we-are.jpg" alt="Children supported by Dosis Kardia Foundation" />
+    </div>
+  </section>
+
+  <!-- Pillars -->
+  <section class="bg-umber py-20">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="font-display text-3xl text-ivory mb-2 text-center">What we do</h2>
+      <p class="text-ivory/60 text-center mb-12 max-w-lg mx-auto">
+        Five ways we meet a child's needs — physical, emotional, and spiritual.
+      </p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-5">
+        {pillars.map((pillar) => (
+          <div class="bg-ivory/5 border border-ivory/10 rounded-2xl p-6 hover:bg-ivory/10 hover:-translate-y-1 transition-all duration-300">
+            <div class="text-marigold mb-4">
+              <pillar.icon size={32} strokeWidth={1.75} />
+            </div>
+            <h3 class="font-display text-lg text-ivory mb-2">{pillar.name}</h3>
+            <p class="text-ivory/60 text-sm leading-relaxed">{pillar.blurb}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Impact counters -->
+  <section class="max-w-5xl mx-auto px-6 py-24 text-center">
+    <h2 class="font-display text-3xl text-umber mb-3">The power of giving</h2>
+    <p class="text-ink/70 max-w-xl mx-auto mb-14">
+      Since our founding, we've been showing up for children who had nowhere
+      else to turn.
+    </p>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-10" id="impact-counters">
+      <div>
+        <p class="font-display text-5xl text-clay counter" data-target="0">0</p>
+        <p class="text-sm text-ink/60 mt-2">children reached — figure pending from client</p>
+      </div>
+      <div>
+        <p class="font-display text-5xl text-clay counter" data-target="0">0</p>
+        <p class="text-sm text-ink/60 mt-2">meals provided — figure pending from client</p>
+      </div>
+      <div>
+        <p class="font-display text-5xl text-clay counter" data-target="0">0</p>
+        <p class="text-sm text-ink/60 mt-2">children in education support — figure pending</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Donate CTA band -->
+  <section class="bg-clay py-20 px-6 text-center">
+    <h2 class="font-display text-3xl md:text-4xl text-ivory mb-4">
+      Your support can change a child's story.
+    </h2>
+    <p class="text-ivory/85 max-w-xl mx-auto mb-8">
+      Give a child not just food or shelter, but hope, direction, and a future.
+    </p>
+    <a href="/donate" class="inline-block bg-ivory text-clay px-8 py-3.5 rounded-full font-semibold hover:bg-umber hover:text-ivory transition-colors">
+      Donate today
+    </a>
+  </section>
+
+  <script>
+    // Scroll-triggered count-up — runs once, only when the section enters view
+    const counters = document.querySelectorAll<HTMLElement>('.counter');
+    const animate = (el: HTMLElement) => {
+      const target = parseInt(el.dataset.target || '0', 10);
+      if (!target) return; // no real figure yet — leave as 0 placeholder
+      const duration = 1400;
+      const start = performance.now();
+      const step = (now: number) => {
+        const progress = Math.min((now - start) / duration, 1);
+        el.textContent = Math.floor(progress * target).toLocaleString();
+        if (progress < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            animate(entry.target as HTMLElement);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.4 }
+    );
+
+    counters.forEach((c) => observer.observe(c));
+  </script>
+</Layout>

@@ -1,0 +1,170 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PhotoCard from '../components/PhotoCard.astro';
+
+const paystackPublicKey = import.meta.env.PUBLIC_PAYSTACK_PUBLIC_KEY ?? '';
+---
+
+<Layout
+  title="Donate"
+  description="Donate to Dosis Kardia Foundation and help give vulnerable children in Port Harcourt, Nigeria access to education, food, shelter, medical care, and guidance."
+>
+  <section class="pt-40 pb-20 px-6 max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-start">
+    <div class="md:sticky md:top-32">
+      <p class="font-script text-clay text-2xl mb-1">Hope for a Lifetime</p>
+      <h1 class="font-display text-4xl text-umber font-semibold mb-4">Give a child a future.</h1>
+      <p class="text-ink/70 mb-6">
+        Every donation goes directly toward food, shelter, education, and
+        care for a street-connected child.
+      </p>
+      <PhotoCard src="/images/donate/donate-hero.jpg" alt="A child helped by Dosis Kardia Foundation" aspect="aspect-[4/3]" />
+    </div>
+
+    <div>
+    <form id="donate-form" class="bg-white/70 border border-umber/10 rounded-2xl p-8 space-y-5">      <div>
+        <label for="name" class="block text-sm font-medium text-umber mb-1.5">Full name</label>
+        <input
+          id="name" name="name" type="text" required
+          class="w-full rounded-lg border border-umber/15 px-4 py-2.5 bg-ivory focus:outline-none focus:ring-2 focus:ring-clay"
+        />
+      </div>
+      <div>
+        <label for="email" class="block text-sm font-medium text-umber mb-1.5">Email</label>
+        <input
+          id="email" name="email" type="email" required
+          class="w-full rounded-lg border border-umber/15 px-4 py-2.5 bg-ivory focus:outline-none focus:ring-2 focus:ring-clay"
+        />
+      </div>
+      <div>
+        <label for="amount" class="block text-sm font-medium text-umber mb-1.5">Amount (₦)</label>
+        <div class="grid grid-cols-4 gap-2 mb-2">
+          {[5000, 10000, 25000, 50000].map((amt) => (
+            <button
+              type="button"
+              class="amount-preset text-sm rounded-lg border border-umber/15 py-2 hover:bg-marigold/20 transition-colors"
+              data-amount={amt}
+            >
+              ₦{amt.toLocaleString()}
+            </button>
+          ))}
+        </div>
+        <input
+          id="amount" name="amount" type="number" min="100" required
+          class="w-full rounded-lg border border-umber/15 px-4 py-2.5 bg-ivory focus:outline-none focus:ring-2 focus:ring-clay"
+          placeholder="Or enter a custom amount"
+        />
+      </div>
+
+      <button
+        type="submit"
+        id="donate-submit"
+        class="w-full bg-clay text-ivory py-3.5 rounded-full font-semibold hover:bg-umber transition-colors disabled:opacity-50"
+      >
+        Donate now
+      </button>
+
+      <p id="donate-status" class="text-sm text-center min-h-5" aria-live="polite"></p>
+    </form>
+
+    <p class="text-xs text-ink/50 text-center mt-6">
+      Payments are processed securely via Paystack. Dosis Kardia Foundation
+      never stores your card details.
+    </p>
+
+    <!-- Bank transfer alternative -->
+    <div class="mt-10 bg-umber/5 border border-umber/10 rounded-2xl p-7">
+      <p class="text-center text-umber font-semibold mb-1">Prefer a direct bank transfer?</p>
+      <p class="text-center text-sm text-ink/60 mb-5">
+        You're welcome to send your donation straight to our account.
+      </p>
+      <dl class="space-y-3 text-sm max-w-xs mx-auto">
+        <div class="flex justify-between border-b border-umber/10 pb-2">
+          <dt class="text-ink/60">Bank</dt>
+          <dd class="font-medium text-umber">Polaris Bank</dd>
+        </div>
+        <div class="flex justify-between border-b border-umber/10 pb-2">
+          <dt class="text-ink/60">Account number</dt>
+          <dd class="font-medium text-umber">4091497287</dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-ink/60">Account name</dt>
+          <dd class="font-medium text-umber text-right">Giving Heart Foundation</dd>
+        </div>
+      </dl>
+      <p class="text-xs text-ink/45 text-center mt-5">
+        The account is registered under "Giving Heart Foundation," Dosis
+        Kardia's account name with the bank — please use this exact name
+        when confirming your transfer.
+      </p>
+    </div>
+    </div>
+  </section>
+
+  <script src="https://js.paystack.co/v1/inline.js" is:inline></script>
+  <script define:vars={{ paystackPublicKey }}>
+    const form = document.getElementById('donate-form');
+    const statusEl = document.getElementById('donate-status');
+    const submitBtn = document.getElementById('donate-submit');
+
+    document.querySelectorAll('.amount-preset').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.getElementById('amount').value = btn.dataset.amount;
+      });
+    });
+
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const amountNaira = Number(document.getElementById('amount').value);
+
+      if (!paystackPublicKey) {
+        statusEl.textContent = 'Payment setup pending — Paystack public key not configured yet.';
+        statusEl.classList.add('text-clay');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      statusEl.textContent = '';
+
+      // @ts-ignore — PaystackPop is loaded globally by the script tag above
+      const handler = PaystackPop.setup({
+        key: paystackPublicKey,
+        email,
+        amount: amountNaira * 100, // Paystack expects kobo
+        currency: 'NGN',
+        metadata: { name },
+        callback: (response) => {
+          // Reference received — now verify it server-side before trusting it
+          fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reference: response.reference, name, email, amountNaira }),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.verified) {
+                statusEl.textContent = 'Thank you! Your donation was received.';
+                statusEl.classList.add('text-olive');
+                form.reset();
+              } else {
+                statusEl.textContent = 'We could not verify this payment. Please contact us.';
+                statusEl.classList.add('text-clay');
+              }
+            })
+            .catch(() => {
+              statusEl.textContent = 'Something went wrong verifying your payment. Please contact us.';
+              statusEl.classList.add('text-clay');
+            })
+            .finally(() => {
+              submitBtn.disabled = false;
+            });
+        },
+        onClose: () => {
+          submitBtn.disabled = false;
+        },
+      });
+      handler.openIframe();
+    });
+  </script>
+</Layout>

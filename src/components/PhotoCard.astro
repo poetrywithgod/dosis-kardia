@@ -1,0 +1,32 @@
+---
+interface Props {
+  src: string;
+  alt: string;
+  class?: string;
+  aspect?: string; // Tailwind aspect-ratio class, e.g. 'aspect-[4/3]'
+}
+
+const { src, alt, class: className = '', aspect = 'aspect-[4/3]' } = Astro.props;
+---
+
+<div class={`relative rounded-2xl overflow-hidden ${aspect} ${className}`}>
+  <img
+    src={src}
+    alt={alt}
+    loading="lazy"
+    class="photo-card-img w-full h-full object-cover"
+    onerror="this.parentElement.classList.add('img-missing')"
+  />
+  <div class="img-fallback absolute inset-0 hidden items-center justify-center bg-olive/20 text-umber/50 text-sm px-6 text-center">
+    {alt} — add public{src}
+  </div>
+</div>
+
+<style>
+  .img-missing .photo-card-img {
+    display: none;
+  }
+  .img-missing .img-fallback {
+    display: flex;
+  }
+</style>

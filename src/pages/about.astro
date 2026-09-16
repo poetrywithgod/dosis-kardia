@@ -1,0 +1,105 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PhotoCard from '../components/PhotoCard.astro';
+import { Sparkles } from '@lucide/astro';
+
+const objectives = [
+  'Identify and support children living on the streets without parental care.',
+  'Provide access to quality education and learning opportunities.',
+  'Ensure regular provision of food and basic daily necessities.',
+  'Facilitate safe shelter and protection for vulnerable children.',
+  'Offer access to healthcare and medical support.',
+  'Mentor and guide children toward responsible and purposeful living.',
+];
+
+const values = [
+  { name: 'Compassion', blurb: 'We serve with genuine love and empathy.' },
+  { name: 'Faith', blurb: 'Our work is guided by strong spiritual principles.' },
+  { name: 'Dignity', blurb: 'Every child deserves respect and worth.' },
+  { name: 'Integrity', blurb: 'We act with honesty and accountability.' },
+  { name: 'Hope', blurb: "We believe every child's future can be transformed." },
+];
+---
+
+<Layout
+  title="About"
+  description="Learn about Dosis Kardia Foundation's story, vision, mission, and the values that guide our work with vulnerable children in Port Harcourt, Nigeria."
+>
+  <section class="pt-40 pb-20 px-6 max-w-3xl mx-auto text-center">
+    <p class="font-script text-clay text-2xl mb-2">Our story</p>
+    <h1 class="font-display text-4xl md:text-5xl text-umber font-semibold">
+      Restoring hope, one child at a time.
+    </h1>
+    <p class="mt-6 text-ink/70 leading-relaxed">
+      Dosis Kardia Foundation (RC: 164807) was founded by the Agagu Family
+      with the aim of restoring hope and supporting street children without
+      parental care and without a safe roof over their heads.
+    </p>
+  </section>
+
+  <section class="max-w-4xl mx-auto px-6 pb-20">
+    <PhotoCard
+      src="/images/about/founding-story.jpg"
+      alt="The Agagu Family's outreach work with children"
+      aspect="aspect-[16/7]"
+    />
+  </section>
+
+  <section class="max-w-5xl mx-auto px-6 pb-20 grid md:grid-cols-3 gap-8">
+    <div class="bg-white/60 rounded-2xl p-7 border border-umber/10">
+      <h2 class="font-display text-xl text-umber mb-3">Who we are</h2>
+      <p class="text-sm text-ink/70 leading-relaxed">
+        A faith-driven non-profit committed to reaching vulnerable children
+        living on the streets with no parental care and support.
+      </p>
+    </div>
+    <div class="bg-white/60 rounded-2xl p-7 border border-umber/10">
+      <h2 class="font-display text-xl text-umber mb-3">Our vision</h2>
+      <p class="text-sm text-ink/70 leading-relaxed">
+        To see every vulnerable child live a life of dignity, purpose, and
+        opportunity — safe, nurtured, educated, and empowered to become a
+        positive force in society.
+      </p>
+    </div>
+    <div class="bg-white/60 rounded-2xl p-7 border border-umber/10">
+      <h2 class="font-display text-xl text-umber mb-3">Our mission</h2>
+      <p class="text-sm text-ink/70 leading-relaxed">
+        To transform the lives of street-connected children by providing
+        access to education, nutritious food, safe shelter, medical care,
+        and compassionate support.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-umber py-20 px-6">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="font-display text-3xl text-ivory mb-10 text-center">Our objectives</h2>
+      <ul class="grid sm:grid-cols-2 gap-5">
+        {objectives.map((obj) => (
+          <li class="flex gap-3 text-ivory/80 text-sm leading-relaxed bg-ivory/5 rounded-xl p-5 border border-ivory/10">
+            <span class="text-marigold shrink-0"><Sparkles size={18} /></span>
+            <span>{obj}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="max-w-5xl mx-auto px-6 py-16 grid sm:grid-cols-3 gap-5">
+    <PhotoCard src="/images/about/gallery-1.jpg" alt="Children in our education program" />
+    <PhotoCard src="/images/about/gallery-2.jpg" alt="A shared meal at Dosis Kardia" />
+    <PhotoCard src="/images/about/gallery-3.jpg" alt="Mentorship in action" />
+  </section>
+
+  <section class="max-w-5xl mx-auto px-6 py-20">
+    <h2 class="font-display text-3xl text-umber mb-10 text-center">Our core values</h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-5">
+      {values.map((v) => (
+        <div class="text-center p-5">
+          <p class="font-display text-lg text-clay mb-2">{v.name}</p>
+          <p class="text-xs text-ink/60 leading-relaxed">{v.blurb}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+</Layout>
