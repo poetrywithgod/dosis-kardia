@@ -13,6 +13,7 @@
   --font-display: "Fraunces", ui-serif, Georgia, serif;
   --font-body: "General Sans", ui-sans-serif, system-ui, sans-serif;
   --font-script: "Caveat", cursive;
+  --font-admin-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
@@ -57,4 +58,13 @@
   .heartbeat {
     animation: none;
   }
+}
+
+/* Admin dashboard: fade-out for deleted cards, created dynamically via JS
+   so they need a global (unscoped) style to actually apply. */
+@keyframes card-fade-out {
+  to { opacity: 0; transform: scale(0.96); }
+}
+.card-leaving {
+  animation: card-fade-out 0.25s ease forwards;
 }

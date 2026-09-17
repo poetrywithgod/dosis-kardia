@@ -1,0 +1,252 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { Mail, Lock, Eye, EyeOff } from '@lucide/astro';
+---
+
+<AdminLayout title="Sign in">
+  <div class="relative min-h-screen flex items-center justify-center px-6 overflow-hidden bg-umber">
+    <!-- Animated ambient glow blobs -->
+    <div class="glow glow-1" aria-hidden="true"></div>
+    <div class="glow glow-2" aria-hidden="true"></div>
+    <div class="glow glow-3" aria-hidden="true"></div>
+
+    <div class="relative w-full max-w-sm">
+      <div class="text-center mb-8">
+        <div class="inline-block bg-ivory rounded-2xl px-6 py-4 shadow-[0_8px_30px_-6px_rgba(0,0,0,0.4)] mb-5">
+          <img src="/logo.png" alt="Dosis Kardia Foundation" class="h-12 w-auto mx-auto" />
+        </div>
+        <p class="font-script text-marigold text-xl mb-1">Hope for a Lifetime</p>
+        <h1 class="font-admin-display text-2xl text-ivory font-semibold">Admin sign in</h1>
+      </div>
+
+      <!-- Sign-in form -->
+      <form
+        id="login-form"
+        class="relative bg-ivory/10 backdrop-blur-2xl border border-ivory/20 rounded-3xl p-7 space-y-5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]"
+      >
+        <div>
+          <label for="email" class="block text-xs font-medium text-ivory/70 mb-2 tracking-wide uppercase">Email</label>
+          <div class="relative">
+            <Mail size={18} class="absolute left-4 top-1/2 -translate-y-1/2 text-ivory/40" />
+            <input
+              id="email" name="email" type="email" required autocomplete="username"
+              class="w-full rounded-xl border border-ivory/15 bg-ivory/5 pl-11 pr-4 py-3.5 text-ivory placeholder:text-ivory/30 focus:outline-none focus:ring-2 focus:ring-marigold focus:border-transparent transition-all text-base"
+              placeholder="you@example.com"
+            />
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label for="password" class="block text-xs font-medium text-ivory/70 tracking-wide uppercase">Password</label>
+            <button type="button" id="forgot-link" class="text-xs text-marigold hover:text-ivory transition-colors">
+              Forgot password?
+            </button>
+          </div>
+          <div class="relative">
+            <Lock size={18} class="absolute left-4 top-1/2 -translate-y-1/2 text-ivory/40" />
+            <input
+              id="password" name="password" type="password" required autocomplete="current-password"
+              class="w-full rounded-xl border border-ivory/15 bg-ivory/5 pl-11 pr-11 py-3.5 text-ivory placeholder:text-ivory/30 focus:outline-none focus:ring-2 focus:ring-marigold focus:border-transparent transition-all text-base"
+              placeholder="••••••••"
+            />
+            <button
+              type="button" id="toggle-password"
+              class="absolute right-3.5 top-1/2 -translate-y-1/2 text-ivory/40 hover:text-ivory transition-colors"
+              aria-label="Show password"
+            >
+              <Eye size={18} id="eye-icon" />
+              <EyeOff size={18} id="eye-off-icon" class="hidden" />
+            </button>
+          </div>
+        </div>
+        <button
+          type="submit" id="login-submit"
+          class="relative w-full bg-marigold text-umber py-3.5 rounded-xl font-semibold hover:bg-ivory transition-all duration-300 disabled:opacity-50 overflow-hidden group"
+        >
+          <span id="login-submit-label" class="relative z-10">Sign in</span>
+        </button>
+        <p id="login-status" class="text-sm text-center min-h-5" aria-live="polite"></p>
+      </form>
+
+      <!-- Forgot password panel -->
+      <form
+        id="reset-form"
+        class="hidden relative bg-ivory/10 backdrop-blur-2xl border border-ivory/20 rounded-3xl p-7 space-y-5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]"
+      >
+        <div>
+          <p class="text-sm text-ivory/70 mb-4">
+            Enter your admin email and we'll send you a link to reset your password.
+          </p>
+          <label for="reset-email" class="block text-xs font-medium text-ivory/70 mb-2 tracking-wide uppercase">Email</label>
+          <div class="relative">
+            <Mail size={18} class="absolute left-4 top-1/2 -translate-y-1/2 text-ivory/40" />
+            <input
+              id="reset-email" name="reset-email" type="email" required autocomplete="username"
+              class="w-full rounded-xl border border-ivory/15 bg-ivory/5 pl-11 pr-4 py-3.5 text-ivory placeholder:text-ivory/30 focus:outline-none focus:ring-2 focus:ring-marigold focus:border-transparent transition-all text-base"
+              placeholder="you@example.com"
+            />
+          </div>
+        </div>
+        <button
+          type="submit" id="reset-submit"
+          class="w-full bg-marigold text-umber py-3.5 rounded-xl font-semibold hover:bg-ivory transition-all duration-300 disabled:opacity-50"
+        >
+          Send reset link
+        </button>
+        <button type="button" id="back-to-login" class="w-full text-center text-sm text-ivory/60 hover:text-ivory transition-colors">
+          ← Back to sign in
+        </button>
+        <p id="reset-status" class="text-sm text-center min-h-5" aria-live="polite"></p>
+      </form>
+
+      <p class="text-center text-ivory/30 text-xs mt-6">Dosis Kardia Foundation · Internal use only</p>
+    </div>
+  </div>
+
+  <style>
+    .glow {
+      position: absolute;
+      border-radius: 9999px;
+      filter: blur(80px);
+      opacity: 0.35;
+      pointer-events: none;
+    }
+    .glow-1 {
+      width: 420px;
+      height: 420px;
+      background: #F2A93B;
+      top: -10%;
+      left: -10%;
+      animation: drift1 14s ease-in-out infinite;
+    }
+    .glow-2 {
+      width: 380px;
+      height: 380px;
+      background: #C1481D;
+      bottom: -15%;
+      right: -10%;
+      animation: drift2 16s ease-in-out infinite;
+    }
+    .glow-3 {
+      width: 300px;
+      height: 300px;
+      background: #4A5D45;
+      top: 40%;
+      right: 20%;
+      opacity: 0.2;
+      animation: drift1 20s ease-in-out infinite reverse;
+    }
+    @keyframes drift1 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(30px, 40px) scale(1.1); }
+    }
+    @keyframes drift2 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-30px, -20px) scale(1.15); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .glow { animation: none; }
+    }
+    #login-status.error, #reset-status.error {
+      color: #E8845A;
+    }
+    #reset-status.success {
+      color: #7C9A73;
+    }
+  </style>
+
+  <script>
+    import { supabaseBrowser } from '../../lib/supabaseClient';
+
+    // If already signed in, skip straight to the dashboard
+    supabaseBrowser.auth.getSession().then(({ data }) => {
+      if (data.session) window.location.href = '/admin';
+    });
+
+    // Password visibility toggle
+    const passwordInput = document.getElementById('password') as HTMLInputElement;
+    const toggleBtn = document.getElementById('toggle-password')!;
+    const eyeIcon = document.getElementById('eye-icon')!;
+    const eyeOffIcon = document.getElementById('eye-off-icon')!;
+
+    toggleBtn.addEventListener('click', () => {
+      const isHidden = passwordInput.type === 'password';
+      passwordInput.type = isHidden ? 'text' : 'password';
+      eyeIcon.classList.toggle('hidden', isHidden);
+      eyeOffIcon.classList.toggle('hidden', !isHidden);
+      toggleBtn.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+    });
+
+    // Sign in
+    const loginForm = document.getElementById('login-form') as HTMLFormElement;
+    const loginStatus = document.getElementById('login-status')!;
+    const loginSubmit = document.getElementById('login-submit') as HTMLButtonElement;
+    const loginSubmitLabel = document.getElementById('login-submit-label')!;
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginSubmit.disabled = true;
+      loginSubmitLabel.textContent = 'Signing in…';
+      loginStatus.textContent = '';
+      loginStatus.classList.remove('error');
+
+      const email = (document.getElementById('email') as HTMLInputElement).value;
+      const password = passwordInput.value;
+
+      const { error } = await supabaseBrowser.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        loginStatus.textContent = 'Invalid email or password.';
+        loginStatus.classList.add('error');
+        loginSubmit.disabled = false;
+        loginSubmitLabel.textContent = 'Sign in';
+        return;
+      }
+
+      loginSubmitLabel.textContent = 'Welcome back!';
+      window.location.href = '/admin';
+    });
+
+    // Forgot password flow
+    const forgotLink = document.getElementById('forgot-link')!;
+    const backToLogin = document.getElementById('back-to-login')!;
+    const resetForm = document.getElementById('reset-form') as HTMLFormElement;
+    const resetStatus = document.getElementById('reset-status')!;
+    const resetSubmit = document.getElementById('reset-submit') as HTMLButtonElement;
+
+    forgotLink.addEventListener('click', () => {
+      loginForm.classList.add('hidden');
+      resetForm.classList.remove('hidden');
+      resetStatus.textContent = '';
+    });
+
+    backToLogin.addEventListener('click', () => {
+      resetForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+    });
+
+    resetForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      resetSubmit.disabled = true;
+      resetStatus.textContent = '';
+      resetStatus.classList.remove('error', 'success');
+
+      const email = (document.getElementById('reset-email') as HTMLInputElement).value;
+
+      const { error } = await supabaseBrowser.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/admin/reset-password`,
+      });
+
+      if (error) {
+        resetStatus.textContent = 'Something went wrong. Try again.';
+        resetStatus.classList.add('error');
+        resetSubmit.disabled = false;
+        return;
+      }
+
+      resetStatus.textContent = 'Check your email for a reset link.';
+      resetStatus.classList.add('success');
+      resetSubmit.disabled = false;
+    });
+  </script>
+</AdminLayout>

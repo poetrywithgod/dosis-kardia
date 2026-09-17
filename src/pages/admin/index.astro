@@ -1,0 +1,382 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { Mail, HandCoins, LogOut, Bell, Trash2, Reply, Send, X } from '@lucide/astro';
+---
+
+<AdminLayout title="Dashboard">
+  <div class="relative min-h-screen bg-umber overflow-hidden">
+    <!-- Ambient glow, same family as the login screen -->
+    <div class="glow glow-1" aria-hidden="true"></div>
+    <div class="glow glow-2" aria-hidden="true"></div>
+
+    <!-- Auth guard placeholder shown until the session check resolves -->
+    <div id="auth-checking" class="relative min-h-screen flex items-center justify-center text-ivory/40 text-sm">
+      Checking session…
+    </div>
+
+    <div id="dashboard" class="hidden relative min-h-screen pb-24">
+      <!-- Top bar -->
+      <header class="sticky top-0 z-20 bg-umber/70 backdrop-blur-xl border-b border-ivory/10 px-4 py-3 flex items-center justify-between">
+        <img src="/logo.png" alt="" class="h-8 w-auto rounded-md" />
+        <div class="flex items-center gap-4">
+          <div class="relative">
+            <Bell size={20} class="text-ivory/70" />
+            <span
+              id="header-badge"
+              class="hidden absolute -top-1.5 -right-1.5 bg-marigold text-umber text-[10px] font-bold min-w-[16px] h-4 rounded-full flex items-center justify-center px-1"
+            >0</span>
+          </div>
+          <button id="signout-btn" class="text-ivory/50 hover:text-marigold transition-colors" aria-label="Sign out">
+            <LogOut size={20} />
+          </button>
+        </div>
+      </header>
+
+      <!-- Tabs -->
+      <div class="flex gap-2 px-4 py-4">
+        <button
+          class="tab-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-semibold border border-ivory/15 text-ivory/60 transition-all"
+          data-tab="messages"
+        >
+          <Mail size={16} />
+          Messages
+          <span id="messages-count-badge" class="hidden bg-marigold text-umber text-[10px] font-bold min-w-[16px] h-4 rounded-full flex items-center justify-center px-1">0</span>
+        </button>
+        <button
+          class="tab-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-semibold border border-ivory/15 text-ivory/60 transition-all"
+          data-tab="donations"
+        >
+          <HandCoins size={16} />
+          Donations
+          <span id="donations-count-badge" class="hidden bg-marigold text-umber text-[10px] font-bold min-w-[16px] h-4 rounded-full flex items-center justify-center px-1">0</span>
+        </button>
+      </div>
+
+      <!-- Lists -->
+      <main class="px-4 space-y-3">
+        <div id="messages-panel" class="space-y-3"></div>
+        <div id="donations-panel" class="space-y-3 hidden"></div>
+        <p id="empty-state" class="hidden text-center text-sm text-ivory/30 py-12">Nothing here yet.</p>
+      </main>
+    </div>
+  </div>
+
+  <style>
+    .glow {
+      position: absolute;
+      border-radius: 9999px;
+      filter: blur(90px);
+      opacity: 0.22;
+      pointer-events: none;
+    }
+    .glow-1 {
+      width: 420px; height: 420px; background: #F2A93B;
+      top: -8%; left: -10%; animation: drift1 18s ease-in-out infinite;
+    }
+    .glow-2 {
+      width: 380px; height: 380px; background: #C1481D;
+      bottom: -10%; right: -8%; animation: drift2 20s ease-in-out infinite;
+    }
+    @keyframes drift1 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(30px, 40px) scale(1.1); }
+    }
+    @keyframes drift2 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-30px, -20px) scale(1.15); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .glow { animation: none; }
+    }
+    .tab-btn.active {
+      background: #F2A93B;
+      color: #2B2318;
+      border-color: transparent;
+    }
+  </style>
+
+  <script>
+    import { supabaseBrowser } from '../../lib/supabaseClient';
+
+    type ContactMessage = {
+      id: string;
+      name: string;
+      email: string;
+      message: string;
+      created_at: string;
+    };
+    type Donation = {
+      id: string;
+      reference: string;
+      donor_name: string | null;
+      donor_email: string | null;
+      amount_naira: number;
+      currency: string;
+      paystack_status: string;
+      created_at: string;
+    };
+
+    const authChecking = document.getElementById('auth-checking')!;
+    const dashboard = document.getElementById('dashboard')!;
+    const messagesPanel = document.getElementById('messages-panel')!;
+    const donationsPanel = document.getElementById('donations-panel')!;
+    const emptyState = document.getElementById('empty-state')!;
+    const headerBadge = document.getElementById('header-badge')!;
+    const messagesCountBadge = document.getElementById('messages-count-badge')!;
+    const donationsCountBadge = document.getElementById('donations-count-badge')!;
+
+    let unseenMessages = 0;
+    let unseenDonations = 0;
+    let activeTab: 'messages' | 'donations' = 'messages';
+
+    const fmtDate = (iso: string) =>
+      new Date(iso).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' });
+
+    const fmtNaira = (n: number) =>
+      new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(n);
+
+    function updateBadges() {
+      const total = unseenMessages + unseenDonations;
+      if (total > 0) {
+        headerBadge.textContent = String(total);
+        headerBadge.classList.remove('hidden');
+      } else {
+        headerBadge.classList.add('hidden');
+      }
+
+      if (unseenMessages > 0) {
+        messagesCountBadge.textContent = `+${unseenMessages}`;
+        messagesCountBadge.classList.remove('hidden');
+      } else {
+        messagesCountBadge.classList.add('hidden');
+      }
+
+      if (unseenDonations > 0) {
+        donationsCountBadge.textContent = `+${unseenDonations}`;
+        donationsCountBadge.classList.remove('hidden');
+      } else {
+        donationsCountBadge.classList.add('hidden');
+      }
+
+      if ('setAppBadge' in navigator) {
+        if (total > 0) (navigator as any).setAppBadge(total);
+        else (navigator as any).clearAppBadge();
+      }
+    }
+
+    function escapeHtml(str: string) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function renderMessage(m: ContactMessage) {
+      const el = document.createElement('div');
+      el.className = 'bg-ivory/10 backdrop-blur-xl border border-ivory/15 rounded-2xl p-4';
+      el.dataset.id = m.id;
+      el.innerHTML = `
+        <div class="flex items-start justify-between gap-3 mb-1.5">
+          <p class="font-semibold text-ivory text-sm">${escapeHtml(m.name)}</p>
+          <p class="text-xs text-ivory/40 shrink-0">${fmtDate(m.created_at)}</p>
+        </div>
+        <p class="text-xs text-marigold mb-2">${escapeHtml(m.email)}</p>
+        <p class="text-sm text-ivory/70 leading-relaxed mb-3">${escapeHtml(m.message)}</p>
+        <div class="flex items-center gap-2 reply-controls">
+          <button class="reply-btn flex items-center gap-1.5 text-xs font-semibold text-marigold hover:text-ivory transition-colors px-3 py-1.5 rounded-full border border-marigold/30">
+            <span class="reply-icon"></span> Reply
+          </button>
+          <button class="delete-btn flex items-center gap-1.5 text-xs font-semibold text-[#E8845A] hover:text-ivory transition-colors px-3 py-1.5 rounded-full border border-clay/30">
+            <span class="delete-icon"></span> Delete
+          </button>
+        </div>
+        <div class="reply-box hidden mt-3 space-y-2">
+          <textarea rows="3" placeholder="Write your reply…" class="reply-textarea w-full rounded-lg border border-ivory/15 bg-ivory/5 px-3 py-2 text-sm text-ivory placeholder:text-ivory/30 focus:outline-none focus:ring-2 focus:ring-marigold"></textarea>
+          <div class="flex items-center gap-2">
+            <button class="send-reply-btn flex items-center gap-1.5 text-xs font-semibold bg-marigold text-umber px-3 py-1.5 rounded-full hover:bg-ivory transition-colors">
+              <span class="send-icon"></span> Send
+            </button>
+            <button class="cancel-reply-btn flex items-center gap-1.5 text-xs font-semibold text-ivory/50 hover:text-ivory px-3 py-1.5 transition-colors">
+              Cancel
+            </button>
+            <p class="reply-status text-xs min-h-4"></p>
+          </div>
+        </div>
+      `;
+
+      // Icons (rendered via small inline SVGs to avoid a client component per icon)
+      el.querySelector('.reply-icon')!.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>';
+      el.querySelector('.delete-icon')!.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
+      el.querySelector('.send-icon')!.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+
+      const replyBtn = el.querySelector('.reply-btn')!;
+      const cancelBtn = el.querySelector('.cancel-reply-btn')!;
+      const sendBtn = el.querySelector('.send-reply-btn') as HTMLButtonElement;
+      const replyBox = el.querySelector('.reply-box')!;
+      const replyControls = el.querySelector('.reply-controls')!;
+      const textarea = el.querySelector('.reply-textarea') as HTMLTextAreaElement;
+      const replyStatus = el.querySelector('.reply-status') as HTMLElement;
+      const deleteBtn = el.querySelector('.delete-btn') as HTMLButtonElement;
+
+      replyBtn.addEventListener('click', () => {
+        replyControls.classList.add('hidden');
+        replyBox.classList.remove('hidden');
+        textarea.focus();
+      });
+
+      cancelBtn.addEventListener('click', () => {
+        replyBox.classList.add('hidden');
+        replyControls.classList.remove('hidden');
+        textarea.value = '';
+        replyStatus.textContent = '';
+      });
+
+      sendBtn.addEventListener('click', async () => {
+        const replyBody = textarea.value.trim();
+        if (!replyBody) return;
+        sendBtn.disabled = true;
+        replyStatus.textContent = 'Sending…';
+        replyStatus.className = 'reply-status text-xs min-h-4 text-ivory/50';
+
+        const { data: sessionData } = await supabaseBrowser.auth.getSession();
+        const token = sessionData.session?.access_token;
+
+        try {
+          const res = await fetch('/api/reply-message', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ messageId: m.id, replyBody }),
+          });
+          const result = await res.json();
+          if (result.success) {
+            replyStatus.textContent = 'Sent!';
+            replyStatus.className = 'reply-status text-xs min-h-4 text-olive';
+            setTimeout(() => cancelBtn.dispatchEvent(new Event('click')), 1200);
+          } else {
+            replyStatus.textContent = result.error || 'Failed to send.';
+            replyStatus.className = 'reply-status text-xs min-h-4 text-[#E8845A]';
+          }
+        } catch {
+          replyStatus.textContent = 'Failed to send.';
+          replyStatus.className = 'reply-status text-xs min-h-4 text-[#E8845A]';
+        } finally {
+          sendBtn.disabled = false;
+        }
+      });
+
+      deleteBtn.addEventListener('click', async () => {
+        if (!confirm('Delete this message? This cannot be undone.')) return;
+        deleteBtn.disabled = true;
+        const { error } = await supabaseBrowser.from('contact_messages').delete().eq('id', m.id);
+        if (error) {
+          alert('Could not delete this message. Try again.');
+          deleteBtn.disabled = false;
+          return;
+        }
+        el.classList.add('card-leaving');
+        setTimeout(() => el.remove(), 250);
+      });
+
+      return el;
+    }
+
+    function renderDonation(d: Donation) {
+      const el = document.createElement('div');
+      el.className = 'bg-ivory/10 backdrop-blur-xl border border-ivory/15 rounded-2xl p-4';
+      const statusColor = d.paystack_status === 'success' ? 'text-olive' : 'text-[#E8845A]';
+      el.innerHTML = `
+        <div class="flex items-start justify-between gap-3 mb-1.5">
+          <p class="font-admin-display text-lg text-ivory">${fmtNaira(d.amount_naira)}</p>
+          <p class="text-xs text-ivory/40 shrink-0">${fmtDate(d.created_at)}</p>
+        </div>
+        <p class="text-sm text-ivory/70">${escapeHtml(d.donor_name || 'Anonymous')} — ${escapeHtml(d.donor_email || '')}</p>
+        <p class="text-xs ${statusColor} mt-1 font-medium">${escapeHtml(d.paystack_status)} · ${escapeHtml(d.reference)}</p>
+      `;
+      return el;
+    }
+
+    function setActiveTab(tab: 'messages' | 'donations') {
+      activeTab = tab;
+      document.querySelectorAll('.tab-btn').forEach((btn) => {
+        const isActive = (btn as HTMLElement).dataset.tab === tab;
+        btn.classList.toggle('active', isActive);
+      });
+      messagesPanel.classList.toggle('hidden', tab !== 'messages');
+      donationsPanel.classList.toggle('hidden', tab !== 'donations');
+
+      if (tab === 'messages') unseenMessages = 0;
+      if (tab === 'donations') unseenDonations = 0;
+      updateBadges();
+    }
+
+    document.querySelectorAll('.tab-btn').forEach((btn) => {
+      btn.addEventListener('click', () => setActiveTab((btn as HTMLElement).dataset.tab as 'messages' | 'donations'));
+    });
+
+    async function loadData() {
+      const [{ data: messages, error: mErr }, { data: donations, error: dErr }] = await Promise.all([
+        supabaseBrowser.from('contact_messages').select('*').order('created_at', { ascending: false }),
+        supabaseBrowser.from('donations').select('*').order('created_at', { ascending: false }),
+      ]);
+
+      messagesPanel.innerHTML = '';
+      donationsPanel.innerHTML = '';
+
+      if (mErr || dErr) {
+        emptyState.textContent = 'Could not load data. Check your connection and try again.';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      (messages ?? []).forEach((m) => messagesPanel.appendChild(renderMessage(m as ContactMessage)));
+      (donations ?? []).forEach((d) => donationsPanel.appendChild(renderDonation(d as Donation)));
+
+      if ((messages ?? []).length === 0 && activeTab === 'messages') {
+        emptyState.classList.remove('hidden');
+      }
+    }
+
+    function subscribeRealtime() {
+      supabaseBrowser
+        .channel('admin-contact-messages')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contact_messages' }, (payload) => {
+          messagesPanel.prepend(renderMessage(payload.new as ContactMessage));
+          if (activeTab !== 'messages') {
+            unseenMessages += 1;
+            updateBadges();
+          }
+        })
+        .subscribe();
+
+      supabaseBrowser
+        .channel('admin-donations')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'donations' }, (payload) => {
+          donationsPanel.prepend(renderDonation(payload.new as Donation));
+          if (activeTab !== 'donations') {
+            unseenDonations += 1;
+            updateBadges();
+          }
+        })
+        .subscribe();
+    }
+
+    document.getElementById('signout-btn')?.addEventListener('click', async () => {
+      await supabaseBrowser.auth.signOut();
+      window.location.href = '/admin/login';
+    });
+
+    supabaseBrowser.auth.getSession().then(async ({ data }) => {
+      if (!data.session) {
+        window.location.href = '/admin/login';
+        return;
+      }
+      authChecking.classList.add('hidden');
+      dashboard.classList.remove('hidden');
+      setActiveTab('messages');
+      await loadData();
+      subscribeRealtime();
+    });
+  </script>
+</AdminLayout>

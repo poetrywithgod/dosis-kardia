@@ -22,8 +22,27 @@ create table if not exists contact_messages (
 );
 
 -- Row Level Security: lock both tables down from the client.
--- All reads/writes go through the server-side API routes using the
--- service_role key, which bypasses RLS — so these policies just make
--- sure no one can read/write directly from the browser using the anon key.
+-- Inserts go through the server-side API routes using the service_role key,
+-- which bypasses RLS. Reads for the admin dashboard go through the anon key
+-- from the browser, so we explicitly allow SELECT only for logged-in users.
 alter table donations enable row level security;
 alter table contact_messages enable row level security;
+
+create policy "Authenticated users can read donations"
+  on donations for select
+  to authenticated
+  using (true);
+
+create policy "Authenticated users can read contact_messages"
+  on contact_messages for select
+  to authenticated
+  using (true);
+
+create policy "Authenticated users can delete contact_messages"
+  on contact_messages for delete
+  to authenticated
+  using (true);
+
+-- Enable Realtime so the admin dashboard gets live updates on new rows
+alter publication supabase_realtime add table donations;
+alter publication supabase_realtime add table contact_messages;
