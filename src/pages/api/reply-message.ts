@@ -45,13 +45,30 @@ export const POST: APIRoute = async ({ request }) => {
     // Look up the original message so we know who to send to and can quote it
     const { data: original, error: fetchError } = await supabaseAdmin
       .from('contact_messages')
-      .select('name, email, message')
+      .select('name, email, message, last_reply_body, last_reply_sent_at')
       .eq('id', messageId)
       .single();
 
     if (fetchError || !original) {
       return new Response(JSON.stringify({ success: false, error: 'Message not found' }), {
         status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Idempotency guard: if the exact same reply body for this message was
+    // already sent moments ago, treat this as a duplicate request (double
+    // click, duplicate render, client retry, etc.) and do not send again.
+    // The database is the source of truth here since the client alone can't
+    // rule out every way a second request could fire.
+    const DUPLICATE_WINDOW_MS = 20_000;
+    if (
+      original.last_reply_body === replyBody.trim() &&
+      original.last_reply_sent_at &&
+      Date.now() - new Date(original.last_reply_sent_at).getTime() < DUPLICATE_WINDOW_MS
+    ) {
+      return new Response(JSON.stringify({ success: true, deduped: true }), {
+        status: 200,
         headers: { 'Content-Type': 'application/json' },
       });
     }
@@ -88,6 +105,13 @@ export const POST: APIRoute = async ({ request }) => {
         headers: { 'Content-Type': 'application/json' },
       });
     }
+
+    // Record what was just sent so a duplicate follow-up request can be
+    // detected and short-circuited above.
+    await supabaseAdmin
+      .from('contact_messages')
+      .update({ last_reply_body: replyBody.trim(), last_reply_sent_at: new Date().toISOString() })
+      .eq('id', messageId);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,

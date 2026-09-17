@@ -199,9 +199,11 @@ import { Mail, HandCoins, LogOut, Bell } from '@lucide/astro';
         replyStatus.textContent = '';
       });
 
+      let isSending = false;
       sendBtn.addEventListener('click', async () => {
         const replyBody = textarea.value.trim();
-        if (!replyBody) return;
+        if (!replyBody || isSending) return;
+        isSending = true;
         sendBtn.disabled = true;
         replyStatus.textContent = 'Sending…';
         replyStatus.className = 'reply-status text-xs min-h-4 text-ink/40';
@@ -232,6 +234,7 @@ import { Mail, HandCoins, LogOut, Bell } from '@lucide/astro';
           replyStatus.className = 'reply-status text-xs min-h-4 text-[#C1481D]';
         } finally {
           sendBtn.disabled = false;
+          isSending = false;
         }
       });
 
@@ -311,7 +314,13 @@ import { Mail, HandCoins, LogOut, Bell } from '@lucide/astro';
       supabaseBrowser
         .channel('admin-contact-messages')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contact_messages' }, (payload) => {
-          messagesPanel.prepend(renderMessage(payload.new as ContactMessage));
+          const incoming = payload.new as ContactMessage;
+          // Guard against rendering the same message twice — e.g. if it was
+          // already picked up by the initial loadData() fetch and also
+          // arrives here via the realtime channel. A duplicate card would
+          // mean a duplicate, independently-clickable Send button.
+          if (messagesPanel.querySelector(`[data-id="${incoming.id}"]`)) return;
+          messagesPanel.prepend(renderMessage(incoming));
           if (activeTab !== 'messages') {
             unseenMessages += 1;
             updateBadges();

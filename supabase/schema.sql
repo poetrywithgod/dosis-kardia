@@ -18,8 +18,17 @@ create table if not exists contact_messages (
   name text not null,
   email text not null,
   message text not null,
-  created_at timestamptz default now()
+  created_at timestamptz default now(),
+  last_reply_body text,
+  last_reply_sent_at timestamptz
 );
+
+-- Idempotency guard for reply-message.ts: lets the API tell a genuine
+-- duplicate request (double-click, duplicate render, client retry, etc.)
+-- apart from a real second reply, without relying on the client alone.
+alter table contact_messages
+  add column if not exists last_reply_body text,
+  add column if not exists last_reply_sent_at timestamptz;
 
 -- Row Level Security: lock both tables down from the client.
 -- Inserts go through the server-side API routes using the service_role key,
