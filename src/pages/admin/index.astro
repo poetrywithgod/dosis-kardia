@@ -75,6 +75,12 @@ import { Mail, HandCoins, LogOut, Bell } from '@lucide/astro';
       message: string;
       created_at: string;
     };
+    type MessageReply = {
+      id: string;
+      message_id: string;
+      body: string;
+      sent_at: string;
+    };
     type Donation = {
       id: string;
       reference: string;
@@ -140,7 +146,38 @@ import { Mail, HandCoins, LogOut, Bell } from '@lucide/astro';
       return div.innerHTML;
     }
 
-    function renderMessage(m: ContactMessage) {
+    const AVATAR_COLORS = ['#C1481D', '#4A5D45', '#2B6CB0', '#805AD5', '#B7791F', '#B83280'];
+
+    // Default avatar for a contact — an initials circle, colored
+    // deterministically from their name so the same person always gets the
+    // same color across the dashboard.
+    function contactAvatar(name: string) {
+      const initial = (name || '?').trim().charAt(0).toUpperCase() || '?';
+      let hash = 0;
+      for (const ch of name || '') hash += ch.charCodeAt(0);
+      const color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
+      return `<div class="w-8 h-8 rounded-full flex items-center justify-center text-ivory text-xs font-bold shrink-0" style="background:${color}">${escapeHtml(initial)}</div>`;
+    }
+
+    // Admin avatar is always the site logo, so replies are instantly
+    // recognizable in the thread.
+    function adminAvatar() {
+      return `<img src="/logo.png" alt="" class="w-8 h-8 rounded-full object-cover shrink-0 bg-white border border-umber/10" />`;
+    }
+
+    function renderReplyBubble(r: MessageReply) {
+      return `
+        <div class="flex items-start gap-2 justify-end" data-reply-id="${escapeHtml(r.id)}">
+          <div class="max-w-[80%]">
+            <div class="bg-clay text-ivory rounded-2xl rounded-tr-sm px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(r.body)}</div>
+            <p class="text-[10px] text-ink/35 mt-1 text-right">${fmtDate(r.sent_at)}</p>
+          </div>
+          ${adminAvatar()}
+        </div>
+      `;
+    }
+
+    function renderMessage(m: ContactMessage, replies: MessageReply[] = []) {
       const el = document.createElement('div');
       el.className = 'bg-white border border-umber/10 rounded-2xl p-4 shadow-[0_1px_2px_rgba(43,35,24,0.04)]';
       el.dataset.id = m.id;
@@ -150,7 +187,13 @@ import { Mail, HandCoins, LogOut, Bell } from '@lucide/astro';
           <p class="text-xs text-ink/35 shrink-0">${fmtDate(m.created_at)}</p>
         </div>
         <p class="text-xs text-clay mb-2">${escapeHtml(m.email)}</p>
-        <p class="text-sm text-ink/70 leading-relaxed mb-3">${escapeHtml(m.message)}</p>
+        <div class="message-thread space-y-3 mb-3">
+          <div class="flex items-start gap-2">
+            ${contactAvatar(m.name)}
+            <div class="max-w-[80%] bg-ivory rounded-2xl rounded-tl-sm px-3 py-2 text-sm text-ink/70 leading-relaxed whitespace-pre-wrap">${escapeHtml(m.message)}</div>
+          </div>
+          ${replies.map(renderReplyBubble).join('')}
+        </div>
         <div class="flex items-center gap-2 reply-controls">
           <button class="reply-btn flex items-center gap-1.5 text-xs font-semibold text-clay hover:bg-clay hover:text-ivory transition-colors px-3 py-1.5 rounded-full border border-clay/30">
             <span class="reply-icon"></span> Reply
@@ -177,6 +220,7 @@ import { Mail, HandCoins, LogOut, Bell } from '@lucide/astro';
       el.querySelector('.delete-icon')!.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
       el.querySelector('.send-icon')!.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
 
+      const thread = el.querySelector('.message-thread')!;
       const replyBtn = el.querySelector('.reply-btn')!;
       const cancelBtn = el.querySelector('.cancel-reply-btn')!;
       const sendBtn = el.querySelector('.send-reply-btn') as HTMLButtonElement;
@@ -224,6 +268,11 @@ import { Mail, HandCoins, LogOut, Bell } from '@lucide/astro';
           if (result.success) {
             replyStatus.textContent = 'Sent!';
             replyStatus.className = 'reply-status text-xs min-h-4 text-[#4A5D45]';
+            // Show the reply in the conversation thread immediately so the
+            // admin can follow the back-and-forth without reloading.
+            if (result.reply) {
+              thread.insertAdjacentHTML('beforeend', renderReplyBubble(result.reply as MessageReply));
+            }
             setTimeout(() => cancelBtn.dispatchEvent(new Event('click')), 1200);
           } else {
             replyStatus.textContent = result.error || 'Failed to send.';
@@ -288,21 +337,32 @@ import { Mail, HandCoins, LogOut, Bell } from '@lucide/astro';
     });
 
     async function loadData() {
-      const [{ data: messages, error: mErr }, { data: donations, error: dErr }] = await Promise.all([
-        supabaseBrowser.from('contact_messages').select('*').order('created_at', { ascending: false }),
-        supabaseBrowser.from('donations').select('*').order('created_at', { ascending: false }),
-      ]);
+      const [{ data: messages, error: mErr }, { data: donations, error: dErr }, { data: replies, error: rErr }] =
+        await Promise.all([
+          supabaseBrowser.from('contact_messages').select('*').order('created_at', { ascending: false }),
+          supabaseBrowser.from('donations').select('*').order('created_at', { ascending: false }),
+          supabaseBrowser.from('message_replies').select('*').order('sent_at', { ascending: true }),
+        ]);
 
       messagesPanel.innerHTML = '';
       donationsPanel.innerHTML = '';
 
-      if (mErr || dErr) {
+      if (mErr || dErr || rErr) {
         emptyState.textContent = 'Could not load data. Check your connection and try again.';
         emptyState.classList.remove('hidden');
         return;
       }
 
-      (messages ?? []).forEach((m) => messagesPanel.appendChild(renderMessage(m as ContactMessage)));
+      const repliesByMessage = new Map<string, MessageReply[]>();
+      (replies ?? []).forEach((r) => {
+        const list = repliesByMessage.get(r.message_id) ?? [];
+        list.push(r as MessageReply);
+        repliesByMessage.set(r.message_id, list);
+      });
+
+      (messages ?? []).forEach((m) =>
+        messagesPanel.appendChild(renderMessage(m as ContactMessage, repliesByMessage.get(m.id) ?? []))
+      );
       (donations ?? []).forEach((d) => donationsPanel.appendChild(renderDonation(d as Donation)));
 
       if ((messages ?? []).length === 0 && activeTab === 'messages') {
@@ -325,6 +385,21 @@ import { Mail, HandCoins, LogOut, Bell } from '@lucide/astro';
             unseenMessages += 1;
             updateBadges();
           }
+        })
+        .subscribe();
+
+      supabaseBrowser
+        .channel('admin-message-replies')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'message_replies' }, (payload) => {
+          const incoming = payload.new as MessageReply;
+          const card = messagesPanel.querySelector(`[data-id="${incoming.message_id}"]`);
+          const thread = card?.querySelector('.message-thread');
+          if (!thread) return;
+          // Skip if this exact reply is already in the thread — it will be
+          // if the reply was just sent from this same session, since the
+          // send handler already appended it locally.
+          if (thread.querySelector(`[data-reply-id="${incoming.id}"]`)) return;
+          thread.insertAdjacentHTML('beforeend', renderReplyBubble(incoming));
         })
         .subscribe();
 

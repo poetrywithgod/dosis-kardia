@@ -30,12 +30,22 @@ alter table contact_messages
   add column if not exists last_reply_body text,
   add column if not exists last_reply_sent_at timestamptz;
 
--- Row Level Security: lock both tables down from the client.
+-- Every reply the admin sends to a contact message, so the dashboard can
+-- show the full back-and-forth rather than just the most recent reply.
+create table if not exists message_replies (
+  id uuid primary key default gen_random_uuid(),
+  message_id uuid not null references contact_messages(id) on delete cascade,
+  body text not null,
+  sent_at timestamptz default now()
+);
+
+-- Row Level Security: lock all three tables down from the client.
 -- Inserts go through the server-side API routes using the service_role key,
 -- which bypasses RLS. Reads for the admin dashboard go through the anon key
 -- from the browser, so we explicitly allow SELECT only for logged-in users.
 alter table donations enable row level security;
 alter table contact_messages enable row level security;
+alter table message_replies enable row level security;
 
 create policy "Authenticated users can read donations"
   on donations for select
@@ -52,6 +62,12 @@ create policy "Authenticated users can delete contact_messages"
   to authenticated
   using (true);
 
+create policy "Authenticated users can read message_replies"
+  on message_replies for select
+  to authenticated
+  using (true);
+
 -- Enable Realtime so the admin dashboard gets live updates on new rows
 alter publication supabase_realtime add table donations;
 alter publication supabase_realtime add table contact_messages;
+alter publication supabase_realtime add table message_replies;

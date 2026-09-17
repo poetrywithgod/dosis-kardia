@@ -33,40 +33,60 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   try {
-    const { messageId, replyBody } = await request.json();
+    const { messageId, replyBody: rawReplyBody } = await request.json();
+    const replyBody = typeof rawReplyBody === 'string' ? rawReplyBody.trim() : '';
 
-    if (!messageId || !replyBody?.trim()) {
+    if (!messageId || !replyBody) {
       return new Response(JSON.stringify({ success: false, error: 'Missing fields' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    // Look up the original message so we know who to send to and can quote it
-    const { data: original, error: fetchError } = await supabaseAdmin
+    // Idempotency guard, done as an atomic claim rather than read-then-write.
+    // Two near-simultaneous requests for the same message (double click, a
+    // duplicate rendered card, a client retry, etc.) both racing a plain
+    // SELECT-then-UPDATE can both pass the check before either one writes —
+    // that's exactly what happened before. This UPDATE's WHERE clause is
+    // evaluated atomically by Postgres per-row, so only one concurrent
+    // request can ever match and "win" the claim within the window; the
+    // loser gets 0 rows back and treats it as a duplicate instead of sending
+    // a second email. The cutoff is server-generated (never user input) so
+    // it's safe to interpolate directly into the filter expression.
+    const dedupeCutoff = new Date(Date.now() - 5_000).toISOString();
+    const { data: claimed, error: claimError } = await supabaseAdmin
       .from('contact_messages')
-      .select('name, email, message, last_reply_body, last_reply_sent_at')
+      .update({ last_reply_body: replyBody, last_reply_sent_at: new Date().toISOString() })
       .eq('id', messageId)
-      .single();
+      .or(`last_reply_sent_at.is.null,last_reply_sent_at.lt.${dedupeCutoff}`)
+      .select('id, name, email, message')
+      .maybeSingle();
 
-    if (fetchError || !original) {
-      return new Response(JSON.stringify({ success: false, error: 'Message not found' }), {
-        status: 404,
+    if (claimError) {
+      console.error('[reply-message] claim error:', claimError.message);
+      return new Response(JSON.stringify({ success: false, error: 'Server error' }), {
+        status: 500,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    // Idempotency guard: if the exact same reply body for this message was
-    // already sent moments ago, treat this as a duplicate request (double
-    // click, duplicate render, client retry, etc.) and do not send again.
-    // The database is the source of truth here since the client alone can't
-    // rule out every way a second request could fire.
-    const DUPLICATE_WINDOW_MS = 20_000;
-    if (
-      original.last_reply_body === replyBody.trim() &&
-      original.last_reply_sent_at &&
-      Date.now() - new Date(original.last_reply_sent_at).getTime() < DUPLICATE_WINDOW_MS
-    ) {
+    let original = claimed;
+    if (!original) {
+      // Didn't win the claim — either the message doesn't exist, or this is
+      // a genuine duplicate of a reply just sent. Distinguish the two.
+      const { data: existing } = await supabaseAdmin
+        .from('contact_messages')
+        .select('id')
+        .eq('id', messageId)
+        .maybeSingle();
+
+      if (!existing) {
+        return new Response(JSON.stringify({ success: false, error: 'Message not found' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
       return new Response(JSON.stringify({ success: true, deduped: true }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
@@ -100,20 +120,33 @@ export const POST: APIRoute = async ({ request }) => {
     if (!resendRes.ok) {
       const errText = await resendRes.text();
       console.error('[reply-message] Resend error:', errText);
+      // Release the claim so a genuine retry after a real failure isn't
+      // permanently blocked by the dedupe window.
+      await supabaseAdmin
+        .from('contact_messages')
+        .update({ last_reply_body: null, last_reply_sent_at: null })
+        .eq('id', messageId);
       return new Response(JSON.stringify({ success: false, error: 'Failed to send email' }), {
         status: 502,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    // Record what was just sent so a duplicate follow-up request can be
-    // detected and short-circuited above.
-    await supabaseAdmin
-      .from('contact_messages')
-      .update({ last_reply_body: replyBody.trim(), last_reply_sent_at: new Date().toISOString() })
-      .eq('id', messageId);
+    // Store this reply in the conversation history so the admin dashboard
+    // can render the full back-and-forth, not just the most recent message.
+    const { data: replyRow, error: replyInsertError } = await supabaseAdmin
+      .from('message_replies')
+      .insert({ message_id: messageId, body: replyBody })
+      .select('id, body, sent_at')
+      .single();
 
-    return new Response(JSON.stringify({ success: true }), {
+    if (replyInsertError) {
+      // The email already sent successfully — don't fail the request over a
+      // history-logging error, just log it for visibility.
+      console.error('[reply-message] history insert error:', replyInsertError.message);
+    }
+
+    return new Response(JSON.stringify({ success: true, reply: replyRow ?? null }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
