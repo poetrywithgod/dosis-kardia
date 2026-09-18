@@ -1,6 +1,6 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
-import { Mail, HandCoins, LogOut, Bell } from '@lucide/astro';
+import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
 ---
 
 <AdminLayout title="Dashboard">
@@ -46,12 +46,42 @@ import { Mail, HandCoins, LogOut, Bell } from '@lucide/astro';
           Donations
           <span id="donations-count-badge" class="hidden bg-clay text-ivory text-[10px] font-bold min-w-[16px] h-4 rounded-full flex items-center justify-center px-1">0</span>
         </button>
+        <button
+          class="tab-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-full text-sm font-semibold text-ink/50 transition-all"
+          data-tab="settings"
+        >
+          <Settings size={16} />
+          Settings
+        </button>
       </div>
 
       <!-- Lists -->
       <main class="px-4 pt-4 space-y-3">
         <div id="messages-panel" class="space-y-3"></div>
         <div id="donations-panel" class="space-y-3 hidden"></div>
+        <div id="settings-panel" class="space-y-4 hidden">
+          <div class="bg-white border border-umber/10 rounded-2xl p-4 shadow-[0_1px_2px_rgba(43,35,24,0.04)]">
+            <h2 class="font-semibold text-umber text-sm mb-1">Invite an admin</h2>
+            <p class="text-xs text-ink/40 mb-3">They'll get an email with a link to set their own password.</p>
+            <form id="invite-form" class="flex gap-2">
+              <input
+                id="invite-email" type="email" required placeholder="name@example.com"
+                class="flex-1 min-w-0 rounded-xl border border-umber/15 px-3 py-2.5 text-sm text-ink placeholder:text-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/40 focus:border-transparent"
+              />
+              <button
+                id="invite-submit" type="submit"
+                class="shrink-0 bg-clay text-ivory px-4 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+              >Invite</button>
+            </form>
+            <p id="invite-status" class="text-xs min-h-4 mt-2"></p>
+          </div>
+          <div>
+            <h2 class="font-semibold text-umber text-sm mb-2 px-1">Admins</h2>
+            <div id="admins-list" class="space-y-2">
+              <p class="text-center text-sm text-ink/30 py-6">Loading…</p>
+            </div>
+          </div>
+        </div>
         <p id="empty-state" class="hidden text-center text-sm text-ink/30 py-12">Nothing here yet.</p>
       </main>
     </div>
@@ -91,11 +121,23 @@ import { Mail, HandCoins, LogOut, Bell } from '@lucide/astro';
       paystack_status: string;
       created_at: string;
     };
+    type Admin = {
+      id: string;
+      email: string;
+      created_at: string;
+      last_sign_in_at: string | null;
+    };
 
     const authChecking = document.getElementById('auth-checking')!;
     const dashboard = document.getElementById('dashboard')!;
     const messagesPanel = document.getElementById('messages-panel')!;
     const donationsPanel = document.getElementById('donations-panel')!;
+    const settingsPanel = document.getElementById('settings-panel')!;
+    const adminsList = document.getElementById('admins-list')!;
+    const inviteForm = document.getElementById('invite-form') as HTMLFormElement;
+    const inviteEmail = document.getElementById('invite-email') as HTMLInputElement;
+    const inviteSubmit = document.getElementById('invite-submit') as HTMLButtonElement;
+    const inviteStatus = document.getElementById('invite-status')!;
     const emptyState = document.getElementById('empty-state')!;
     const headerBadge = document.getElementById('header-badge')!;
     const messagesCountBadge = document.getElementById('messages-count-badge')!;
@@ -103,7 +145,9 @@ import { Mail, HandCoins, LogOut, Bell } from '@lucide/astro';
 
     let unseenMessages = 0;
     let unseenDonations = 0;
-    let activeTab: 'messages' | 'donations' = 'messages';
+    let activeTab: 'messages' | 'donations' | 'settings' = 'messages';
+    let currentUserId: string | null = null;
+    let adminsLoaded = false;
 
     const fmtDate = (iso: string) =>
       new Date(iso).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' });
@@ -318,7 +362,7 @@ import { Mail, HandCoins, LogOut, Bell } from '@lucide/astro';
       return el;
     }
 
-    function setActiveTab(tab: 'messages' | 'donations') {
+    function setActiveTab(tab: 'messages' | 'donations' | 'settings') {
       activeTab = tab;
       document.querySelectorAll('.tab-btn').forEach((btn) => {
         const isActive = (btn as HTMLElement).dataset.tab === tab;
@@ -326,14 +370,115 @@ import { Mail, HandCoins, LogOut, Bell } from '@lucide/astro';
       });
       messagesPanel.classList.toggle('hidden', tab !== 'messages');
       donationsPanel.classList.toggle('hidden', tab !== 'donations');
+      settingsPanel.classList.toggle('hidden', tab !== 'settings');
+      if (tab === 'settings') emptyState.classList.add('hidden');
 
       if (tab === 'messages') unseenMessages = 0;
       if (tab === 'donations') unseenDonations = 0;
+      if (tab === 'settings' && !adminsLoaded) loadAdmins();
       updateBadges();
     }
 
     document.querySelectorAll('.tab-btn').forEach((btn) => {
-      btn.addEventListener('click', () => setActiveTab((btn as HTMLElement).dataset.tab as 'messages' | 'donations'));
+      btn.addEventListener('click', () =>
+        setActiveTab((btn as HTMLElement).dataset.tab as 'messages' | 'donations' | 'settings')
+      );
+    });
+
+    function renderAdminRow(a: Admin) {
+      const el = document.createElement('div');
+      el.className = 'bg-white border border-umber/10 rounded-2xl p-3.5 flex items-center justify-between gap-3';
+      el.dataset.adminId = a.id;
+      const isYou = a.id === currentUserId;
+      const statusLabel = a.last_sign_in_at ? `Last signed in ${fmtDate(a.last_sign_in_at)}` : 'Invited · not signed in yet';
+      el.innerHTML = `
+        <div class="min-w-0">
+          <p class="text-sm font-medium text-ink truncate">${escapeHtml(a.email)}${isYou ? ' <span class="text-ink/35 font-normal">(you)</span>' : ''}</p>
+          <p class="text-xs text-ink/40 mt-0.5">${escapeHtml(statusLabel)}</p>
+        </div>
+        ${isYou ? '' : '<button class="remove-admin-btn shrink-0 text-xs font-semibold text-[#C1481D] hover:opacity-70 transition-opacity">Remove</button>'}
+      `;
+
+      const removeBtn = el.querySelector('.remove-admin-btn');
+      removeBtn?.addEventListener('click', async () => {
+        if (!confirm(`Remove ${a.email} as an admin? They will lose access immediately.`)) return;
+        (removeBtn as HTMLButtonElement).disabled = true;
+        const { data: sessionData } = await supabaseBrowser.auth.getSession();
+        const token = sessionData.session?.access_token;
+        try {
+          const res = await fetch('/api/remove-admin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ adminId: a.id }),
+          });
+          const result = await res.json();
+          if (result.success) {
+            el.remove();
+          } else {
+            alert(result.error || 'Could not remove this admin.');
+            (removeBtn as HTMLButtonElement).disabled = false;
+          }
+        } catch {
+          alert('Could not remove this admin. Try again.');
+          (removeBtn as HTMLButtonElement).disabled = false;
+        }
+      });
+
+      return el;
+    }
+
+    async function loadAdmins() {
+      adminsLoaded = true;
+      const { data: sessionData } = await supabaseBrowser.auth.getSession();
+      const token = sessionData.session?.access_token;
+      try {
+        const res = await fetch('/api/list-admins', { headers: { Authorization: `Bearer ${token}` } });
+        const result = await res.json();
+        adminsList.innerHTML = '';
+        if (!result.success) {
+          adminsList.innerHTML = `<p class="text-center text-sm text-ink/30 py-6">${escapeHtml(result.error || 'Could not load admins.')}</p>`;
+          return;
+        }
+        currentUserId = result.currentUserId;
+        (result.admins as Admin[]).forEach((a) => adminsList.appendChild(renderAdminRow(a)));
+      } catch {
+        adminsList.innerHTML = '<p class="text-center text-sm text-ink/30 py-6">Could not load admins.</p>';
+      }
+    }
+
+    inviteForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = inviteEmail.value.trim();
+      if (!email) return;
+      inviteSubmit.disabled = true;
+      inviteStatus.textContent = 'Sending invite…';
+      inviteStatus.className = 'text-xs min-h-4 mt-2 text-ink/40';
+
+      const { data: sessionData } = await supabaseBrowser.auth.getSession();
+      const token = sessionData.session?.access_token;
+
+      try {
+        const res = await fetch('/api/create-admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ email }),
+        });
+        const result = await res.json();
+        if (result.success) {
+          inviteStatus.textContent = `Invite sent to ${email}.`;
+          inviteStatus.className = 'text-xs min-h-4 mt-2 text-[#4A5D45]';
+          inviteEmail.value = '';
+          if (result.admin) adminsList.prepend(renderAdminRow(result.admin as Admin));
+        } else {
+          inviteStatus.textContent = result.error || 'Could not send invite.';
+          inviteStatus.className = 'text-xs min-h-4 mt-2 text-[#C1481D]';
+        }
+      } catch {
+        inviteStatus.textContent = 'Could not send invite. Try again.';
+        inviteStatus.className = 'text-xs min-h-4 mt-2 text-[#C1481D]';
+      } finally {
+        inviteSubmit.disabled = false;
+      }
     });
 
     async function loadData() {

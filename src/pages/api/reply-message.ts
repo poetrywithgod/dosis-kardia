@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '../../lib/supabase';
+import { requireAdmin, unauthorized } from '../../lib/requireAdmin';
 
 export const prerender = false;
 
@@ -14,23 +15,9 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  // Require a valid Supabase session — only the signed-in admin can send replies.
-  const authHeader = request.headers.get('Authorization') ?? '';
-  const token = authHeader.replace('Bearer ', '');
-  if (!token) {
-    return new Response(JSON.stringify({ success: false, error: 'Not authenticated' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
-  const { data: userData, error: authError } = await supabaseAdmin.auth.getUser(token);
-  if (authError || !userData?.user) {
-    return new Response(JSON.stringify({ success: false, error: 'Not authenticated' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
+  // Require a valid Supabase session — only a signed-in admin can send replies.
+  const user = await requireAdmin(request);
+  if (!user) return unauthorized();
 
   try {
     const { messageId, replyBody: rawReplyBody } = await request.json();
