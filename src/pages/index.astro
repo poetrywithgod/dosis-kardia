@@ -5,11 +5,11 @@ import PhotoCard from '../components/PhotoCard.astro';
 import { BookOpen, UtensilsCrossed, Home, Stethoscope, HandHeart, HeartPulse, ArrowRight } from '@lucide/astro';
 
 const pillars = [
-  { name: 'Education', blurb: 'Building minds for a better tomorrow.', icon: BookOpen },
-  { name: 'Food', blurb: 'Nourishing bodies, restoring hope.', icon: UtensilsCrossed },
+  { name: 'Education', blurb: 'Building minds and opening doors to school.', icon: BookOpen },
+  { name: 'Food & Clothing', blurb: 'Meeting daily needs, one meal and one outfit at a time.', icon: UtensilsCrossed },
   { name: 'Shelter', blurb: 'A safe place to call home.', icon: Home },
   { name: 'Medical Care', blurb: 'Health and healing for a brighter future.', icon: Stethoscope },
-  { name: 'Guidance', blurb: 'Mentorship and value-based support.', icon: HandHeart },
+  { name: 'Discipleship', blurb: 'Teaching and mentoring through the Word of God.', icon: HandHeart },
 ];
 ---
 
@@ -24,8 +24,10 @@ const pillars = [
       Every child deserves a heartbeat that's heard.
     </h1>
     <p class="mt-6 text-lg text-ink/70 max-w-xl mx-auto">
-      We give street-connected children in Port Harcourt a path back to
-      dignity — through education, food, shelter, medical care, and guidance.
+      For four years, we've walked alongside street-connected children and
+      young people in Port Harcourt, giving them a path back to dignity
+      through education, food, clothing, shelter, medical care, and
+      discipleship in God's Word.
     </p>
 
     <div class="mt-9 flex items-center justify-center gap-4">
@@ -54,11 +56,14 @@ const pillars = [
     <div>
       <h2 class="font-display text-3xl text-umber mb-4">Who we are</h2>
       <p class="text-ink/75 leading-relaxed">
-        Dosis Kardia Foundation is a faith-driven non-profit committed to
-        reaching vulnerable children living on the streets with no parental
-        care or support. Founded by the Agagu Family, we go beyond temporary
-        relief — we create lasting change, rebuilding stability, identity,
-        and purpose, one child at a time.
+        Dosis Kardia Foundation is a faith-driven non-profit reaching
+        vulnerable young people living on the streets, homeless and
+        otherwise, with no parental care or support. For four years, the
+        Agagu Family has led us in visiting them consistently: teaching and
+        discipling them in God's Word, clothing and feeding them, tending to
+        their medical needs, and sponsoring some through school. We go
+        beyond temporary relief to build lasting stability, identity, and
+        purpose, one child at a time.
       </p>
       <a href="/about" class="inline-flex items-center gap-1.5 mt-6 text-clay font-semibold hover:text-umber transition-colors group">
         Read our full story
@@ -75,7 +80,7 @@ const pillars = [
     <div class="max-w-6xl mx-auto px-6">
       <h2 class="font-display text-3xl text-ivory mb-2 text-center">What we do</h2>
       <p class="text-ivory/60 text-center mb-12 max-w-lg mx-auto">
-        Five ways we meet a child's needs — physical, emotional, and spiritual.
+        Five ways we meet a child's needs, in body, mind, and spirit.
       </p>
       <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-5">
         {pillars.map((pillar) => (
@@ -92,24 +97,20 @@ const pillars = [
   </section>
 
   <!-- Impact counters -->
+  <!-- Once the client shares hard figures (children reached, meals served, etc.),
+       add more <div> blocks here following the same markup as the counter below. -->
   <section class="max-w-5xl mx-auto px-6 py-24 text-center">
-    <h2 class="font-display text-3xl text-umber mb-3">The power of giving</h2>
+    <h2 class="font-display text-3xl text-umber mb-3">Four years of showing up</h2>
     <p class="text-ink/70 max-w-xl mx-auto mb-14">
-      Since our founding, we've been showing up for children who had nowhere
-      else to turn.
+      For four years now, we've been visiting street-connected young people,
+      homeless and otherwise: teaching and discipling them in God's Word,
+      feeding and clothing them, attending to their medical needs, and
+      sponsoring some through school.
     </p>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-10" id="impact-counters">
+    <div class="grid place-items-center" id="impact-counters">
       <div>
-        <p class="font-display text-5xl text-clay counter" data-target="0">0</p>
-        <p class="text-sm text-ink/60 mt-2">children reached — figure pending from client</p>
-      </div>
-      <div>
-        <p class="font-display text-5xl text-clay counter" data-target="0">0</p>
-        <p class="text-sm text-ink/60 mt-2">meals provided — figure pending from client</p>
-      </div>
-      <div>
-        <p class="font-display text-5xl text-clay counter" data-target="0">0</p>
-        <p class="text-sm text-ink/60 mt-2">children in education support — figure pending</p>
+        <p class="font-display text-6xl text-clay counter" data-target="4">0</p>
+        <p class="text-sm text-ink/60 mt-2">years of consistent outreach</p>
       </div>
     </div>
   </section>
@@ -128,11 +129,11 @@ const pillars = [
   </section>
 
   <script>
-    // Scroll-triggered count-up — runs once, only when the section enters view
+    // Scroll-triggered count-up: runs once, only when the section enters view
     const counters = document.querySelectorAll<HTMLElement>('.counter');
     const animate = (el: HTMLElement) => {
       const target = parseInt(el.dataset.target || '0', 10);
-      if (!target) return; // no real figure yet — leave as 0 placeholder
+      if (!target) return; // no real figure yet, leave as 0 placeholder
       const duration = 1400;
       const start = performance.now();
       const step = (now: number) => {

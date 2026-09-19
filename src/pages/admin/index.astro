@@ -192,7 +192,7 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
 
     const AVATAR_COLORS = ['#C1481D', '#4A5D45', '#2B6CB0', '#805AD5', '#B7791F', '#B83280'];
 
-    // Default avatar for a contact — an initials circle, colored
+    // Default avatar for a contact: an initials circle, colored
     // deterministically from their name so the same person always gets the
     // same color across the dashboard.
     function contactAvatar(name: string) {
@@ -356,7 +356,7 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
           <p class="font-admin-display text-lg text-umber">${fmtNaira(d.amount_naira)}</p>
           <p class="text-xs text-ink/35 shrink-0">${fmtDate(d.created_at)}</p>
         </div>
-        <p class="text-sm text-ink/70">${escapeHtml(d.donor_name || 'Anonymous')} — ${escapeHtml(d.donor_email || '')}</p>
+        <p class="text-sm text-ink/70">${escapeHtml(d.donor_name || 'Anonymous')} (${escapeHtml(d.donor_email || '')})</p>
         <p class="text-xs ${statusColor} mt-1 font-medium">${escapeHtml(d.paystack_status)} · ${escapeHtml(d.reference)}</p>
       `;
       return el;
@@ -520,7 +520,7 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
         .channel('admin-contact-messages')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contact_messages' }, (payload) => {
           const incoming = payload.new as ContactMessage;
-          // Guard against rendering the same message twice — e.g. if it was
+          // Guard against rendering the same message twice, e.g. if it was
           // already picked up by the initial loadData() fetch and also
           // arrives here via the realtime channel. A duplicate card would
           // mean a duplicate, independently-clickable Send button.
@@ -540,7 +540,7 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
           const card = messagesPanel.querySelector(`[data-id="${incoming.message_id}"]`);
           const thread = card?.querySelector('.message-thread');
           if (!thread) return;
-          // Skip if this exact reply is already in the thread — it will be
+          // Skip if this exact reply is already in the thread; it will be
           // if the reply was just sent from this same session, since the
           // send handler already appended it locally.
           if (thread.querySelector(`[data-reply-id="${incoming.id}"]`)) return;

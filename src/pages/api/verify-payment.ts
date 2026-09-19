@@ -58,7 +58,7 @@ export const POST: APIRoute = async ({ request }) => {
     });
 
     if (dbError) {
-      // Payment is genuinely verified even if our own logging failed —
+      // Payment is genuinely verified even if our own logging failed;
       // don't tell the donor their payment failed because of our DB.
       console.error('[verify-payment] Supabase insert failed:', dbError.message);
     }

@@ -37,6 +37,14 @@ const siteName = "Dosis Kardia Foundation";
       href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=Caveat:wght@600&display=swap"
       rel="stylesheet"
     />
+    <!-- global.css sets the body font to "General Sans", which isn't on Google
+         Fonts, so it needs to be loaded separately from Fontshare or it silently
+         falls back to the system font. -->
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link
+      href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body class="bg-ivory text-ink font-body antialiased">
     <header class="fixed top-0 inset-x-0 z-50 transition-all duration-300" id="site-header">
@@ -70,8 +78,8 @@ const siteName = "Dosis Kardia Foundation";
             <img src="/logo.png" alt="Dosis Kardia Foundation" class="h-9 w-auto" />
           </div>
           <p class="text-sm leading-relaxed">
-            Hope for a lifetime — restoring dignity, purpose, and opportunity to
-            vulnerable children in Port Harcourt, Nigeria.
+            Hope for a lifetime: restoring dignity, purpose, and opportunity
+            for vulnerable children in Port Harcourt, Nigeria.
           </p>
           <p class="text-xs text-ivory/50 mt-4">RC: 164807</p>
         </div>
@@ -97,8 +105,8 @@ const siteName = "Dosis Kardia Foundation";
     </footer>
 
     <script>
-      // Deepen the glass effect once scrolled — nav is always glassmorphic,
-      // this just increases opacity/blur so it reads clearly over busy content
+      // Deepen the glass effect once scrolled. The nav is always glassmorphic;
+      // this just increases opacity/blur so it reads clearly over busy content.
       const nav = document.getElementById('glass-nav');
       const onScroll = () => {
         if (!nav) return;

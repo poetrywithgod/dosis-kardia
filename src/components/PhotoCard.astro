@@ -18,7 +18,7 @@ const { src, alt, class: className = '', aspect = 'aspect-[4/3]' } = Astro.props
     onerror="this.parentElement.classList.add('img-missing')"
   />
   <div class="img-fallback absolute inset-0 hidden items-center justify-center bg-olive/20 text-umber/50 text-sm px-6 text-center">
-    {alt} — add public{src}
+    {alt} (add public{src})
   </div>
 </div>
 

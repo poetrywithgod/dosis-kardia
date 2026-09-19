@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  /* Color palette — grounded in Dosis Kardia's existing brand */
-  --color-umber: #2B2318;       /* deep warm near-black — headers, footer */
-  --color-marigold: #F2A93B;    /* primary accent — brand gold/orange */
-  --color-clay: #C1481D;        /* secondary accent — donate CTAs */
+  /* Color palette, grounded in Dosis Kardia's existing brand */
+  --color-umber: #2B2318;       /* deep warm near-black, used for headers and footer */
+  --color-marigold: #F2A93B;    /* primary accent, brand gold/orange */
+  --color-clay: #C1481D;        /* secondary accent, used for donate CTAs */
   --color-ivory: #FBF6EC;       /* warm background */
   --color-olive: #4A5D45;       /* quiet supporting accent, from foliage in photos */
   --color-ink: #1C1C1C;         /* body text, near-black not pure black */

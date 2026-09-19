@@ -19,7 +19,7 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // Send a Supabase invite email — the new admin clicks the link, lands on
+    // Send a Supabase invite email. The new admin clicks the link, lands on
     // /admin/reset-password, and sets their own password before ever seeing
     // the dashboard. No temporary password is generated or stored anywhere.
     const origin = new URL(request.url).origin;

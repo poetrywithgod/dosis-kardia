@@ -15,7 +15,7 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  // Require a valid Supabase session — only a signed-in admin can send replies.
+  // Require a valid Supabase session; only a signed-in admin can send replies.
   const user = await requireAdmin(request);
   if (!user) return unauthorized();
 
@@ -33,7 +33,7 @@ export const POST: APIRoute = async ({ request }) => {
     // Idempotency guard, done as an atomic claim rather than read-then-write.
     // Two near-simultaneous requests for the same message (double click, a
     // duplicate rendered card, a client retry, etc.) both racing a plain
-    // SELECT-then-UPDATE can both pass the check before either one writes —
+    // SELECT-then-UPDATE can both pass the check before either one writes;
     // that's exactly what happened before. This UPDATE's WHERE clause is
     // evaluated atomically by Postgres per-row, so only one concurrent
     // request can ever match and "win" the claim within the window; the
@@ -59,7 +59,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     let original = claimed;
     if (!original) {
-      // Didn't win the claim — either the message doesn't exist, or this is
+      // Didn't win the claim: either the message doesn't exist, or this is
       // a genuine duplicate of a reply just sent. Distinguish the two.
       const { data: existing } = await supabaseAdmin
         .from('contact_messages')
@@ -128,7 +128,7 @@ export const POST: APIRoute = async ({ request }) => {
       .single();
 
     if (replyInsertError) {
-      // The email already sent successfully — don't fail the request over a
+      // The email already sent successfully; don't fail the request over a
       // history-logging error, just log it for visibility.
       console.error('[reply-message] history insert error:', replyInsertError.message);
     }

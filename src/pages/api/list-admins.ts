@@ -9,7 +9,7 @@ export const GET: APIRoute = async ({ request }) => {
   if (!user) return unauthorized();
 
   try {
-    // Every user in Supabase Auth for this project is an admin — there's no
+    // Every user in Supabase Auth for this project is an admin; there's no
     // separate roles table. Fine for a small team; if that ever changes,
     // this is the place to add a role filter.
     const { data, error } = await supabaseAdmin.auth.admin.listUsers();

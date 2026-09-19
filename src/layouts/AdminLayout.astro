@@ -30,7 +30,7 @@ const { title } = Astro.props;
     <script>
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/admin-sw.js').catch(() => {
-          // Non-fatal — the dashboard still works without offline support
+          // Non-fatal: the dashboard still works without offline support
         });
       }
     </script>
