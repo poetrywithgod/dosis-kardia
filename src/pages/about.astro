@@ -40,7 +40,7 @@ const values = [
     </p>
   </section>
 
-  <section class="max-w-4xl mx-auto px-6 pb-20">
+  <section class="max-w-4xl mx-auto px-6 pb-20 reveal">
     <PhotoCard
       src="/images/about/founding-story.jpg"
       alt="The Agagu Family's outreach work with children"
@@ -48,15 +48,15 @@ const values = [
     />
   </section>
 
-  <section class="max-w-5xl mx-auto px-6 pb-20 grid md:grid-cols-3 gap-8">
-    <div class="bg-white/60 rounded-2xl p-7 border border-umber/10">
+  <section class="max-w-5xl mx-auto px-6 pb-20 grid md:grid-cols-3 gap-8 reveal-group">
+    <div class="reveal bg-white/60 rounded-2xl p-7 border border-umber/10">
       <h2 class="font-display text-xl text-umber mb-3">Who we are</h2>
       <p class="text-sm text-ink/70 leading-relaxed">
         A faith-driven non-profit committed to reaching vulnerable children
         living on the streets with no parental care and support.
       </p>
     </div>
-    <div class="bg-white/60 rounded-2xl p-7 border border-umber/10">
+    <div class="reveal bg-white/60 rounded-2xl p-7 border border-umber/10">
       <h2 class="font-display text-xl text-umber mb-3">Our vision</h2>
       <p class="text-sm text-ink/70 leading-relaxed">
         To see every vulnerable child live a life of dignity, purpose, and
@@ -64,7 +64,7 @@ const values = [
         positive force in society.
       </p>
     </div>
-    <div class="bg-white/60 rounded-2xl p-7 border border-umber/10">
+    <div class="reveal bg-white/60 rounded-2xl p-7 border border-umber/10">
       <h2 class="font-display text-xl text-umber mb-3">Our mission</h2>
       <p class="text-sm text-ink/70 leading-relaxed">
         To transform the lives of street-connected children by providing
@@ -76,10 +76,10 @@ const values = [
 
   <section class="bg-umber py-20 px-6">
     <div class="max-w-4xl mx-auto">
-      <h2 class="font-display text-3xl text-ivory mb-10 text-center">Our objectives</h2>
-      <ul class="grid sm:grid-cols-2 gap-5">
+      <h2 class="font-display text-3xl text-ivory mb-10 text-center reveal">Our objectives</h2>
+      <ul class="grid sm:grid-cols-2 gap-5 reveal-group">
         {objectives.map((obj) => (
-          <li class="flex gap-3 text-ivory/80 text-sm leading-relaxed bg-ivory/5 rounded-xl p-5 border border-ivory/10">
+          <li class="reveal flex gap-3 text-ivory/80 text-sm leading-relaxed bg-ivory/5 rounded-xl p-5 border border-ivory/10">
             <span class="text-marigold shrink-0"><Sparkles size={18} /></span>
             <span>{obj}</span>
           </li>
@@ -88,17 +88,17 @@ const values = [
     </div>
   </section>
 
-  <section class="max-w-5xl mx-auto px-6 py-16 grid sm:grid-cols-3 gap-5">
-    <PhotoCard src="/images/about/gallery-1.jpg" alt="Children in our education program" />
-    <PhotoCard src="/images/about/gallery-2.jpg" alt="A shared meal at Dosis Kardia" />
-    <PhotoCard src="/images/about/gallery-3.jpg" alt="Mentorship in action" />
+  <section class="max-w-5xl mx-auto px-6 py-16 grid sm:grid-cols-3 gap-5 reveal-group">
+    <PhotoCard class="reveal" src="/images/about/gallery-1.jpg" alt="Children in our education program" />
+    <PhotoCard class="reveal" src="/images/about/gallery-2.jpg" alt="A shared meal at Dosis Kardia" />
+    <PhotoCard class="reveal" src="/images/about/gallery-3.jpg" alt="Mentorship in action" />
   </section>
 
   <section class="max-w-5xl mx-auto px-6 py-20">
-    <h2 class="font-display text-3xl text-umber mb-10 text-center">Our core values</h2>
-    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-5">
+    <h2 class="font-display text-3xl text-umber mb-10 text-center reveal">Our core values</h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-5 reveal-group">
       {values.map((v) => (
-        <div class="text-center p-5">
+        <div class="reveal text-center p-5">
           <p class="font-display text-lg text-clay mb-2">{v.name}</p>
           <p class="text-xs text-ink/60 leading-relaxed">{v.blurb}</p>
         </div>

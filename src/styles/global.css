@@ -44,7 +44,7 @@
   }
 }
 
-/* The one orchestrated motion moment: the hero heartbeat */
+/* The hero heartbeat: a small looping accent on the homepage badge */
 @keyframes heartbeat {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.02); }
@@ -57,6 +57,30 @@
 @media (prefers-reduced-motion: reduce) {
   .heartbeat {
     animation: none;
+  }
+}
+
+/* Scroll reveal: sections and cards fade and rise into view as they enter the
+   viewport. The `is-visible` class is toggled by the IntersectionObserver set
+   up once in Layout.astro, so it applies site-wide without repeating the
+   script on every page. */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
 

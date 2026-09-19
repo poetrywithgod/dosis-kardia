@@ -52,8 +52,8 @@ const pillars = [
   </section>
 
   <!-- Who we are -->
-  <section class="max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
-    <div>
+  <section class="max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center reveal-group">
+    <div class="reveal">
       <h2 class="font-display text-3xl text-umber mb-4">Who we are</h2>
       <p class="text-ink/75 leading-relaxed">
         Dosis Kardia Foundation is a faith-driven non-profit reaching
@@ -70,7 +70,7 @@ const pillars = [
         <ArrowRight size={18} class="transition-transform group-hover:translate-x-1" />
       </a>
     </div>
-    <div class="rounded-2xl overflow-hidden">
+    <div class="reveal rounded-2xl overflow-hidden">
       <PhotoCard src="/images/home/who-we-are.jpg" alt="Children supported by Dosis Kardia Foundation" />
     </div>
   </section>
@@ -78,13 +78,13 @@ const pillars = [
   <!-- Pillars -->
   <section class="bg-umber py-20">
     <div class="max-w-6xl mx-auto px-6">
-      <h2 class="font-display text-3xl text-ivory mb-2 text-center">What we do</h2>
-      <p class="text-ivory/60 text-center mb-12 max-w-lg mx-auto">
+      <h2 class="font-display text-3xl text-ivory mb-2 text-center reveal">What we do</h2>
+      <p class="text-ivory/60 text-center mb-12 max-w-lg mx-auto reveal">
         Five ways we meet a child's needs, in body, mind, and spirit.
       </p>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-5">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-5 reveal-group">
         {pillars.map((pillar) => (
-          <div class="bg-ivory/5 border border-ivory/10 rounded-2xl p-6 hover:bg-ivory/10 hover:-translate-y-1 transition-all duration-300">
+          <div class="reveal bg-ivory/5 border border-ivory/10 rounded-2xl p-6 hover:bg-ivory/10 hover:-translate-y-1 transition-all duration-300">
             <div class="text-marigold mb-4">
               <pillar.icon size={32} stroke-width={1.75} />
             </div>
@@ -97,18 +97,22 @@ const pillars = [
   </section>
 
   <!-- Impact counters -->
-  <!-- Once the client shares hard figures (children reached, meals served, etc.),
-       add more <div> blocks here following the same markup as the counter below. -->
+  <!-- Once the client shares more hard figures (meals served, dates, etc.),
+       add more <div> blocks here following the same markup as the counters below. -->
   <section class="max-w-5xl mx-auto px-6 py-24 text-center">
-    <h2 class="font-display text-3xl text-umber mb-3">Four years of showing up</h2>
-    <p class="text-ink/70 max-w-xl mx-auto mb-14">
+    <h2 class="font-display text-3xl text-umber mb-3 reveal">Four years of showing up</h2>
+    <p class="text-ink/70 max-w-xl mx-auto mb-14 reveal">
       For four years now, we've been visiting street-connected young people,
       homeless and otherwise: teaching and discipling them in God's Word,
       feeding and clothing them, attending to their medical needs, and
       sponsoring some through school.
     </p>
-    <div class="grid place-items-center" id="impact-counters">
-      <div>
+    <div class="grid grid-cols-2 gap-10 max-w-md mx-auto reveal-group" id="impact-counters">
+      <div class="reveal">
+        <p class="font-display text-6xl text-clay counter" data-target="350">0</p>
+        <p class="text-sm text-ink/60 mt-2">young people reached</p>
+      </div>
+      <div class="reveal">
         <p class="font-display text-6xl text-clay counter" data-target="4">0</p>
         <p class="text-sm text-ink/60 mt-2">years of consistent outreach</p>
       </div>
@@ -116,7 +120,7 @@ const pillars = [
   </section>
 
   <!-- Donate CTA band -->
-  <section class="bg-clay py-20 px-6 text-center">
+  <section class="bg-clay py-20 px-6 text-center reveal">
     <h2 class="font-display text-3xl md:text-4xl text-ivory mb-4">
       Your support can change a child's story.
     </h2>
