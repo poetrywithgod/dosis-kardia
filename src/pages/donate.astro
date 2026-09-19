@@ -1,8 +1,22 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import PhotoCard from '../components/PhotoCard.astro';
 
 const paystackPublicKey = import.meta.env.PUBLIC_PAYSTACK_PUBLIC_KEY ?? '';
+
+const heroImages = [
+  {
+    src: '/images/donate/donate-hero.jpg',
+    alt: 'Children helped by Dosis Kardia Foundation',
+  },
+  {
+    src: '/images/donate/donate-hero2.jpg',
+    alt: 'A meal provided through Dosis Kardia Foundation',
+  },
+  {
+    src: '/images/donate/donate-hero3.jpg',
+    alt: 'A child supported by Dosis Kardia Foundation',
+  },
+];
 ---
 
 <Layout
@@ -10,160 +24,444 @@ const paystackPublicKey = import.meta.env.PUBLIC_PAYSTACK_PUBLIC_KEY ?? '';
   description="Donate to Dosis Kardia Foundation and help give vulnerable children in Port Harcourt, Nigeria access to education, food, shelter, medical care, and guidance."
 >
   <section class="pt-40 pb-20 px-6 max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-start">
+    <!-- Left: Story + slideshow -->
     <div class="md:sticky md:top-32">
       <p class="font-script text-clay text-2xl mb-1">Hope for a Lifetime</p>
-      <h1 class="font-display text-4xl text-umber font-semibold mb-4">Give a child a future.</h1>
+
+      <h1 class="font-display text-4xl text-umber font-semibold mb-4">
+        Give a child a future.
+      </h1>
+
       <p class="text-ink/70 mb-6">
         Every donation goes directly toward food, shelter, education, and
         care for a street-connected child.
       </p>
-      <PhotoCard src="/images/donate/donate-hero.jpg" alt="A child helped by Dosis Kardia Foundation" aspect="aspect-[4/3]" />
-    </div>
 
-    <div>
-    <form id="donate-form" class="bg-white/70 border border-umber/10 rounded-2xl p-8 space-y-5">      <div>
-        <label for="name" class="block text-sm font-medium text-umber mb-1.5">Full name</label>
-        <input
-          id="name" name="name" type="text" required
-          class="w-full rounded-lg border border-umber/15 px-4 py-2.5 bg-ivory focus:outline-none focus:ring-2 focus:ring-clay"
-        />
-      </div>
-      <div>
-        <label for="email" class="block text-sm font-medium text-umber mb-1.5">Email</label>
-        <input
-          id="email" name="email" type="email" required
-          class="w-full rounded-lg border border-umber/15 px-4 py-2.5 bg-ivory focus:outline-none focus:ring-2 focus:ring-clay"
-        />
-      </div>
-      <div>
-        <label for="amount" class="block text-sm font-medium text-umber mb-1.5">Amount (₦)</label>
-        <div class="grid grid-cols-4 gap-2 mb-2">
-          {[5000, 10000, 25000, 50000].map((amt) => (
+      <!-- Slideshow -->
+      <div
+        class="photo-card relative overflow-hidden rounded-2xl aspect-[3/4] bg-umber/5"
+        data-photo-card
+        data-interval="5000"
+      >
+        {heroImages.map((img, i) => (
+          <img
+            src={img.src}
+            alt={img.alt}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            class:list={[
+              'photo-slide absolute inset-0 w-full h-full object-cover',
+              'transition-opacity duration-[1500ms] ease-in-out',
+              i === 0 ? 'opacity-100 z-[2]' : 'opacity-0 z-[1]',
+            ]}
+            data-slide
+          />
+        ))}
+
+        <!-- Slideshow dots -->
+        <div
+          class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10"
+          aria-label="Slideshow controls"
+        >
+          {heroImages.map((_, i) => (
             <button
               type="button"
-              class="amount-preset text-sm rounded-lg border border-umber/15 py-2 hover:bg-marigold/20 transition-colors"
-              data-amount={amt}
-            >
-              ₦{amt.toLocaleString()}
-            </button>
+              aria-label={`Show photo ${i + 1}`}
+              aria-current={i === 0 ? 'true' : 'false'}
+              class:list={[
+                'photo-dot w-2 h-2 rounded-full',
+                'transition-all duration-500 ease-in-out',
+                i === 0
+                  ? 'bg-ivory w-5'
+                  : 'bg-ivory/50 hover:bg-ivory/80',
+              ]}
+              data-dot
+              data-index={i}
+            />
           ))}
         </div>
-        <input
-          id="amount" name="amount" type="number" min="100" required
-          class="w-full rounded-lg border border-umber/15 px-4 py-2.5 bg-ivory focus:outline-none focus:ring-2 focus:ring-clay"
-          placeholder="Or enter a custom amount"
-        />
       </div>
-
-      <button
-        type="submit"
-        id="donate-submit"
-        class="w-full bg-clay text-ivory py-3.5 rounded-full font-semibold hover:bg-umber transition-colors disabled:opacity-50"
-      >
-        Donate now
-      </button>
-
-      <p id="donate-status" class="text-sm text-center min-h-5" aria-live="polite"></p>
-    </form>
-
-    <p class="text-xs text-ink/50 text-center mt-6">
-      Payments are processed securely via Paystack. Dosis Kardia Foundation
-      never stores your card details.
-    </p>
-
-    <!-- Bank transfer alternative -->
-    <div class="mt-10 bg-umber/5 border border-umber/10 rounded-2xl p-7">
-      <p class="text-center text-umber font-semibold mb-1">Prefer a direct bank transfer?</p>
-      <p class="text-center text-sm text-ink/60 mb-5">
-        You're welcome to send your donation straight to our account.
-      </p>
-      <dl class="space-y-3 text-sm max-w-xs mx-auto">
-        <div class="flex justify-between border-b border-umber/10 pb-2">
-          <dt class="text-ink/60">Bank</dt>
-          <dd class="font-medium text-umber">Polaris Bank</dd>
-        </div>
-        <div class="flex justify-between border-b border-umber/10 pb-2">
-          <dt class="text-ink/60">Account number</dt>
-          <dd class="font-medium text-umber">4091497287</dd>
-        </div>
-        <div class="flex justify-between">
-          <dt class="text-ink/60">Account name</dt>
-          <dd class="font-medium text-umber text-right">Giving Heart Foundation</dd>
-        </div>
-      </dl>
-      <p class="text-xs text-ink/45 text-center mt-5">
-        The account is registered under "Giving Heart Foundation," Dosis
-        Kardia's account name with the bank — please use this exact name
-        when confirming your transfer.
-      </p>
     </div>
+
+    <!-- Right: Donation form -->
+    <div>
+      <form
+        id="donate-form"
+        class="bg-white/70 border border-umber/10 rounded-2xl p-8 space-y-5"
+      >
+        <div>
+          <label
+            for="name"
+            class="block text-sm font-medium text-umber mb-1.5"
+          >
+            Full name
+          </label>
+
+          <input
+            id="name"
+            name="name"
+            type="text"
+            autocomplete="name"
+            required
+            class="w-full rounded-lg border border-umber/15 px-4 py-2.5 bg-ivory focus:outline-none focus:ring-2 focus:ring-clay"
+          />
+        </div>
+
+        <div>
+          <label
+            for="email"
+            class="block text-sm font-medium text-umber mb-1.5"
+          >
+            Email
+          </label>
+
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            class="w-full rounded-lg border border-umber/15 px-4 py-2.5 bg-ivory focus:outline-none focus:ring-2 focus:ring-clay"
+          />
+        </div>
+
+        <div>
+          <label
+            for="amount"
+            class="block text-sm font-medium text-umber mb-1.5"
+          >
+            Amount (₦)
+          </label>
+
+          <div class="grid grid-cols-4 gap-2 mb-2">
+            {[5000, 10000, 25000, 50000].map((amt) => (
+              <button
+                type="button"
+                class="amount-preset text-sm rounded-lg border border-umber/15 py-2 hover:bg-marigold/20 transition-colors"
+                data-amount={amt}
+              >
+                ₦{amt.toLocaleString()}
+              </button>
+            ))}
+          </div>
+
+          <input
+            id="amount"
+            name="amount"
+            type="number"
+            min="100"
+            step="100"
+            required
+            class="w-full rounded-lg border border-umber/15 px-4 py-2.5 bg-ivory focus:outline-none focus:ring-2 focus:ring-clay"
+            placeholder="Or enter a custom amount"
+          />
+        </div>
+
+        <button
+          type="submit"
+          id="donate-submit"
+          class="w-full bg-clay text-ivory py-3.5 rounded-full font-semibold hover:bg-umber transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Donate now
+        </button>
+
+        <p
+          id="donate-status"
+          class="text-sm text-center min-h-5"
+          aria-live="polite"
+        ></p>
+      </form>
+
+      <p class="text-xs text-ink/50 text-center mt-6">
+        Payments are processed securely via Paystack. Dosis Kardia Foundation
+        never stores your card details.
+      </p>
+
+      <!-- Bank transfer alternative -->
+      <div class="mt-10 bg-umber/5 border border-umber/10 rounded-2xl p-7">
+        <p class="text-center text-umber font-semibold mb-1">
+          Prefer a direct bank transfer?
+        </p>
+
+        <p class="text-center text-sm text-ink/60 mb-5">
+          You're welcome to send your donation straight to our account.
+        </p>
+
+        <dl class="space-y-3 text-sm max-w-xs mx-auto">
+          <div class="flex justify-between border-b border-umber/10 pb-2">
+            <dt class="text-ink/60">Bank</dt>
+            <dd class="font-medium text-umber">Polaris Bank</dd>
+          </div>
+
+          <div class="flex justify-between border-b border-umber/10 pb-2">
+            <dt class="text-ink/60">Account number</dt>
+            <dd class="font-medium text-umber">4091497287</dd>
+          </div>
+
+          <div class="flex justify-between">
+            <dt class="text-ink/60">Account name</dt>
+            <dd class="font-medium text-umber text-right">
+              Giving Heart Foundation
+            </dd>
+          </div>
+        </dl>
+
+        <p class="text-xs text-ink/45 text-center mt-5">
+          The account is registered under "Giving Heart Foundation," Dosis
+          Kardia's account name with the bank. Please use this exact name
+          when confirming your transfer.
+        </p>
+      </div>
     </div>
   </section>
 
-  <script src="https://js.paystack.co/v1/inline.js" is:inline></script>
+  <!-- Slideshow -->
+  <script>
+    document.querySelectorAll<HTMLElement>('[data-photo-card]').forEach((card) => {
+      const slides =
+        card.querySelectorAll<HTMLImageElement>('[data-slide]');
+
+      const dots =
+        card.querySelectorAll<HTMLButtonElement>('[data-dot]');
+
+      if (slides.length < 2) return;
+
+      const interval = Number(card.dataset.interval) || 5000;
+
+      let current = 0;
+      let timer: ReturnType<typeof setInterval> | undefined;
+
+      const show = (index: number) => {
+        if (index < 0 || index >= slides.length) return;
+
+        slides.forEach((slide, i) => {
+          const isActive = i === index;
+
+          slide.classList.toggle('opacity-100', isActive);
+          slide.classList.toggle('opacity-0', !isActive);
+
+          /*
+           * Keep the active image above the previous image.
+           * This allows the two images to overlap during the fade.
+           */
+          slide.classList.toggle('z-[2]', isActive);
+          slide.classList.toggle('z-[1]', !isActive);
+        });
+
+        dots.forEach((dot, i) => {
+          const isActive = i === index;
+
+          dot.classList.toggle('bg-ivory', isActive);
+          dot.classList.toggle('bg-ivory/50', !isActive);
+          dot.classList.toggle('w-5', isActive);
+          dot.classList.toggle('w-2', !isActive);
+
+          dot.setAttribute('aria-current', String(isActive));
+        });
+
+        current = index;
+      };
+
+      const next = () => {
+        show((current + 1) % slides.length);
+      };
+
+      const start = () => {
+        if (timer !== undefined) return;
+
+        timer = setInterval(next, interval);
+      };
+
+      const stop = () => {
+        if (timer !== undefined) {
+          clearInterval(timer);
+          timer = undefined;
+        }
+      };
+
+      dots.forEach((dot) => {
+        dot.addEventListener('click', () => {
+          const index = Number(dot.dataset.index);
+
+          if (Number.isNaN(index)) return;
+
+          stop();
+          show(index);
+          start();
+        });
+      });
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          stop();
+        } else {
+          start();
+        }
+      });
+
+      start();
+    });
+  </script>
+
+  <!-- Paystack -->
+  <script
+    src="https://js.paystack.co/v1/inline.js"
+    is:inline
+  ></script>
+
   <script define:vars={{ paystackPublicKey }}>
     const form = document.getElementById('donate-form');
     const statusEl = document.getElementById('donate-status');
     const submitBtn = document.getElementById('donate-submit');
+    const amountInput = document.getElementById('amount');
 
-    document.querySelectorAll('.amount-preset').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        document.getElementById('amount').value = btn.dataset.amount;
+    const setStatus = (message, type = '') => {
+      if (!statusEl) return;
+
+      statusEl.textContent = message;
+
+      statusEl.classList.remove(
+        'text-clay',
+        'text-olive',
+        'text-ink/60'
+      );
+
+      if (type === 'success') {
+        statusEl.classList.add('text-olive');
+      } else if (type === 'error') {
+        statusEl.classList.add('text-clay');
+      } else {
+        statusEl.classList.add('text-ink/60');
+      }
+    };
+
+    document
+      .querySelectorAll<HTMLButtonElement>('.amount-preset')
+      .forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (amountInput) {
+            amountInput.value = btn.dataset.amount ?? '';
+            amountInput.focus();
+          }
+        });
       });
-    });
 
     form?.addEventListener('submit', (e) => {
       e.preventDefault();
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const amountNaira = Number(document.getElementById('amount').value);
+
+      if (!form || !statusEl || !submitBtn || !amountInput) {
+        return;
+      }
+
+      const nameInput =
+        document.getElementById('name') as HTMLInputElement | null;
+
+      const emailInput =
+        document.getElementById('email') as HTMLInputElement | null;
+
+      if (!nameInput || !emailInput) {
+        setStatus('Please complete the donation form.', 'error');
+        return;
+      }
+
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      const amountNaira = Number(amountInput.value);
+
+      if (!name || !email) {
+        setStatus('Please enter your name and email.', 'error');
+        return;
+      }
+
+      if (!Number.isFinite(amountNaira) || amountNaira < 100) {
+        setStatus('Please enter a donation amount of at least ₦100.', 'error');
+        amountInput.focus();
+        return;
+      }
 
       if (!paystackPublicKey) {
-        statusEl.textContent = 'Payment setup pending — Paystack public key not configured yet.';
-        statusEl.classList.add('text-clay');
+        setStatus(
+          'Payment setup is currently unavailable. Please try again later.',
+          'error'
+        );
         return;
       }
 
       submitBtn.disabled = true;
-      statusEl.textContent = '';
+      setStatus('Opening secure payment...', 'loading');
 
-      // @ts-ignore — PaystackPop is loaded globally by the script tag above
+      // PaystackPop is provided globally by the Paystack script.
+      // @ts-ignore
       const handler = PaystackPop.setup({
         key: paystackPublicKey,
         email,
-        amount: amountNaira * 100, // Paystack expects kobo
+        amount: Math.round(amountNaira * 100),
         currency: 'NGN',
-        metadata: { name },
+
+        metadata: {
+          name,
+          custom_fields: [
+            {
+              display_name: 'Donor Name',
+              variable_name: 'donor_name',
+              value: name,
+            },
+          ],
+        },
+
         callback: (response) => {
-          // Reference received — now verify it server-side before trusting it
+          setStatus('Verifying your donation...', 'loading');
+
           fetch('/api/verify-payment', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reference: response.reference, name, email, amountNaira }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              reference: response.reference,
+              name,
+              email,
+              amountNaira,
+            }),
           })
-            .then((res) => res.json())
+            .then(async (res) => {
+              if (!res.ok) {
+                throw new Error('Payment verification failed');
+              }
+
+              return res.json();
+            })
             .then((data) => {
               if (data.verified) {
-                statusEl.textContent = 'Thank you! Your donation was received.';
-                statusEl.classList.add('text-olive');
+                setStatus(
+                  'Thank you! Your donation was received.',
+                  'success'
+                );
+
                 form.reset();
               } else {
-                statusEl.textContent = 'We could not verify this payment. Please contact us.';
-                statusEl.classList.add('text-clay');
+                setStatus(
+                  'We could not verify this payment. Please contact us.',
+                  'error'
+                );
               }
             })
             .catch(() => {
-              statusEl.textContent = 'Something went wrong verifying your payment. Please contact us.';
-              statusEl.classList.add('text-clay');
+              setStatus(
+                'Something went wrong while verifying your payment. Please contact us.',
+                'error'
+              );
             })
             .finally(() => {
               submitBtn.disabled = false;
             });
         },
+
         onClose: () => {
           submitBtn.disabled = false;
+          setStatus('');
         },
       });
+
       handler.openIframe();
     });
   </script>

@@ -1,6 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import PhotoCard from '../components/PhotoCard.astro';
 ---
 
 <Layout
@@ -8,78 +7,360 @@ import PhotoCard from '../components/PhotoCard.astro';
   description="Get in touch with Dosis Kardia Foundation in Port Harcourt, Nigeria."
 >
   <section class="pt-40 pb-20 px-6 max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-start">
+    <!-- Left column -->
     <div class="md:sticky md:top-32">
-      <h1 class="font-display text-4xl text-umber font-semibold mb-4">Get in touch</h1>
+      <h1 class="font-display text-4xl text-umber font-semibold mb-4">
+        Get in touch
+      </h1>
+
       <p class="text-ink/70 mb-6">
         Questions about our work, partnership, or how to help? Reach out.
       </p>
-      <PhotoCard src="/images/contact/contact-hero.jpg" alt="Dosis Kardia Foundation team at work" aspect="aspect-[4/3]" />
-      <div class="text-sm text-ink/60 mt-6 space-y-1">
-        <p>Port Harcourt, Nigeria</p>
-        <p>givingheartfoundation.ghf@gmail.com</p>
+
+      <!-- Slideshow -->
+      <div
+        class="photo-card relative overflow-hidden rounded-2xl aspect-[3/4] bg-umber/5"
+        data-photo-card
+        data-interval="5000"
+      >
+        <img
+          src="/images/contact/contact-hero.jpg"
+          alt="Dosis Kardia Foundation team at work"
+          loading="eager"
+          class="photo-slide absolute inset-0 w-full h-full object-cover opacity-100 z-[2] transition-opacity duration-[1500ms] ease-in-out"
+          data-slide
+        />
+
+        <img
+          src="/images/contact/contact-hero2.jpg"
+          alt="Dosis Kardia Foundation supporting the community"
+          loading="lazy"
+          class="photo-slide absolute inset-0 w-full h-full object-cover opacity-0 z-[1] transition-opacity duration-[1500ms] ease-in-out"
+          data-slide
+        />
+
+        <img
+          src="/images/contact/contact-hero3.jpg"
+          alt="Dosis Kardia Foundation supporting the community"
+          loading="lazy"
+          class="photo-slide absolute inset-0 w-full h-full object-cover opacity-0 z-[1] transition-opacity duration-[1500ms] ease-in-out"
+          data-slide
+        />
+
+        <!-- Slideshow dots -->
+        <div
+          class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10"
+        >
+          <button
+            type="button"
+            aria-label="Show photo 1"
+            aria-current="true"
+            class="photo-dot w-5 h-2 rounded-full bg-ivory transition-all duration-500 ease-in-out"
+            data-dot
+            data-index="0"
+          ></button>
+
+          <button
+            type="button"
+            aria-label="Show photo 2"
+            aria-current="false"
+            class="photo-dot w-2 h-2 rounded-full bg-ivory/50 hover:bg-ivory/80 transition-all duration-500 ease-in-out"
+            data-dot
+            data-index="1"
+          ></button>
+        </div>
+      </div>
+
+      <!-- Contact information -->
+      <div class="mt-6 bg-white/70 border border-umber/10 rounded-2xl p-6">
+        <div class="space-y-4 text-sm">
+          <div>
+            <p class="text-xs uppercase tracking-wider text-ink/40 mb-1">
+              Location
+            </p>
+            <p class="text-umber font-medium">
+              Port Harcourt, Nigeria
+            </p>
+          </div>
+
+          <div>
+            <p class="text-xs uppercase tracking-wider text-ink/40 mb-1">
+              Email
+            </p>
+
+            <a
+              href="mailto:givingheartfoundation.ghf@gmail.com"
+              class="text-umber font-medium hover:text-clay transition-colors break-all"
+            >
+              givingheartfoundation.ghf@gmail.com
+            </a>
+          </div>
+        </div>
       </div>
     </div>
 
+    <!-- Right column -->
     <div>
-    <form id="contact-form" class="bg-white/70 border border-umber/10 rounded-2xl p-8 space-y-5">
-      <div>
-        <label for="c-name" class="block text-sm font-medium text-umber mb-1.5">Name</label>
-        <input id="c-name" name="name" type="text" required
-          class="w-full rounded-lg border border-umber/15 px-4 py-2.5 bg-ivory focus:outline-none focus:ring-2 focus:ring-clay" />
-      </div>
-      <div>
-        <label for="c-email" class="block text-sm font-medium text-umber mb-1.5">Email</label>
-        <input id="c-email" name="email" type="email" required
-          class="w-full rounded-lg border border-umber/15 px-4 py-2.5 bg-ivory focus:outline-none focus:ring-2 focus:ring-clay" />
-      </div>
-      <div>
-        <label for="c-message" class="block text-sm font-medium text-umber mb-1.5">Message</label>
-        <textarea id="c-message" name="message" rows="5" required
-          class="w-full rounded-lg border border-umber/15 px-4 py-2.5 bg-ivory focus:outline-none focus:ring-2 focus:ring-clay"></textarea>
-      </div>
-      <button type="submit" id="contact-submit"
-        class="w-full bg-clay text-ivory py-3.5 rounded-full font-semibold hover:bg-umber transition-colors disabled:opacity-50">
-        Send message
-      </button>
-      <p id="contact-status" class="text-sm text-center min-h-5" aria-live="polite"></p>
-    </form>
+      <form
+        id="contact-form"
+        class="bg-white/70 border border-umber/10 rounded-2xl p-8 space-y-5"
+      >
+        <div>
+          <label
+            for="c-name"
+            class="block text-sm font-medium text-umber mb-1.5"
+          >
+            Name
+          </label>
+
+          <input
+            id="c-name"
+            name="name"
+            type="text"
+            autocomplete="name"
+            required
+            class="w-full rounded-lg border border-umber/15 px-4 py-2.5 bg-ivory focus:outline-none focus:ring-2 focus:ring-clay"
+          />
+        </div>
+
+        <div>
+          <label
+            for="c-email"
+            class="block text-sm font-medium text-umber mb-1.5"
+          >
+            Email
+          </label>
+
+          <input
+            id="c-email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            class="w-full rounded-lg border border-umber/15 px-4 py-2.5 bg-ivory focus:outline-none focus:ring-2 focus:ring-clay"
+          />
+        </div>
+
+        <div>
+          <label
+            for="c-message"
+            class="block text-sm font-medium text-umber mb-1.5"
+          >
+            Message
+          </label>
+
+          <textarea
+            id="c-message"
+            name="message"
+            rows="5"
+            required
+            class="w-full rounded-lg border border-umber/15 px-4 py-2.5 bg-ivory focus:outline-none focus:ring-2 focus:ring-clay"
+          ></textarea>
+        </div>
+
+        <button
+          type="submit"
+          id="contact-submit"
+          class="w-full bg-clay text-ivory py-3.5 rounded-full font-semibold hover:bg-umber transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Send message
+        </button>
+
+        <p
+          id="contact-status"
+          class="text-sm text-center min-h-5"
+          aria-live="polite"
+        ></p>
+      </form>
     </div>
   </section>
 
+  <!-- Slideshow script -->
   <script>
-    const form = document.getElementById('contact-form');
-    const statusEl = document.getElementById('contact-status');
-    const submitBtn = document.getElementById('contact-submit');
+    document
+      .querySelectorAll<HTMLElement>('[data-photo-card]')
+      .forEach((card) => {
+        const slides =
+          card.querySelectorAll<HTMLImageElement>('[data-slide]');
+
+        const dots =
+          card.querySelectorAll<HTMLButtonElement>('[data-dot]');
+
+        if (slides.length < 2) return;
+
+        const interval = Number(card.dataset.interval) || 5000;
+
+        let current = 0;
+        let timer: ReturnType<typeof setInterval> | undefined;
+
+        const show = (index: number) => {
+          if (index < 0 || index >= slides.length) return;
+
+          slides.forEach((slide, i) => {
+            const active = i === index;
+
+            slide.classList.toggle('opacity-100', active);
+            slide.classList.toggle('opacity-0', !active);
+
+            slide.classList.toggle('z-[2]', active);
+            slide.classList.toggle('z-[1]', !active);
+          });
+
+          dots.forEach((dot, i) => {
+            const active = i === index;
+
+            dot.classList.toggle('bg-ivory', active);
+            dot.classList.toggle('bg-ivory/50', !active);
+
+            dot.classList.toggle('w-5', active);
+            dot.classList.toggle('w-2', !active);
+
+            dot.setAttribute('aria-current', String(active));
+          });
+
+          current = index;
+        };
+
+        const next = () => {
+          show((current + 1) % slides.length);
+        };
+
+        const start = () => {
+          if (timer !== undefined) return;
+
+          timer = setInterval(next, interval);
+        };
+
+        const stop = () => {
+          if (timer !== undefined) {
+            clearInterval(timer);
+            timer = undefined;
+          }
+        };
+
+        dots.forEach((dot) => {
+          dot.addEventListener('click', () => {
+            const index = Number(dot.dataset.index);
+
+            if (Number.isNaN(index)) return;
+
+            stop();
+            show(index);
+            start();
+          });
+        });
+
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) {
+            stop();
+          } else {
+            start();
+          }
+        });
+
+        start();
+      });
+  </script>
+
+  <!-- Contact form script -->
+  <script>
+    const form =
+      document.getElementById('contact-form') as HTMLFormElement | null;
+
+    const statusEl =
+      document.getElementById('contact-status') as HTMLParagraphElement | null;
+
+    const submitBtn =
+      document.getElementById('contact-submit') as HTMLButtonElement | null;
+
+    const nameInput =
+      document.getElementById('c-name') as HTMLInputElement | null;
+
+    const emailInput =
+      document.getElementById('c-email') as HTMLInputElement | null;
+
+    const messageInput =
+      document.getElementById('c-message') as HTMLTextAreaElement | null;
+
+    const setStatus = (
+      message: string,
+      type: 'success' | 'error' | 'loading' | '' = ''
+    ) => {
+      if (!statusEl) return;
+
+      statusEl.textContent = message;
+
+      statusEl.classList.remove(
+        'text-olive',
+        'text-clay',
+        'text-ink/60'
+      );
+
+      if (type === 'success') {
+        statusEl.classList.add('text-olive');
+      } else if (type === 'error') {
+        statusEl.classList.add('text-clay');
+      } else {
+        statusEl.classList.add('text-ink/60');
+      }
+    };
 
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();
-      submitBtn.disabled = true;
-      statusEl.textContent = '';
 
-      const payload = {
-        name: document.getElementById('c-name').value,
-        email: document.getElementById('c-email').value,
-        message: document.getElementById('c-message').value,
-      };
+      if (
+        !form ||
+        !statusEl ||
+        !submitBtn ||
+        !nameInput ||
+        !emailInput ||
+        !messageInput
+      ) {
+        return;
+      }
+
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      const message = messageInput.value.trim();
+
+      if (!name || !email || !message) {
+        setStatus('Please complete all fields.', 'error');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      setStatus('Sending your message...', 'loading');
 
       try {
         const res = await fetch('/api/contact', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            message,
+          }),
         });
+
         const data = await res.json();
-        if (data.success) {
-          statusEl.textContent = "Thanks — we'll get back to you soon.";
-          statusEl.classList.add('text-olive');
-          form.reset();
-        } else {
-          statusEl.textContent = 'Something went wrong. Please try again.';
-          statusEl.classList.add('text-clay');
+
+        if (!res.ok || !data.success) {
+          throw new Error('Contact request failed');
         }
+
+        setStatus(
+          "Thanks — we'll get back to you soon.",
+          'success'
+        );
+
+        form.reset();
       } catch {
-        statusEl.textContent = 'Something went wrong. Please try again.';
-        statusEl.classList.add('text-clay');
+        setStatus(
+          'Something went wrong. Please try again.',
+          'error'
+        );
       } finally {
         submitBtn.disabled = false;
       }
