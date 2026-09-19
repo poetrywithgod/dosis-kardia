@@ -39,7 +39,7 @@ const heroImages = [
 
       <!-- Slideshow -->
       <div
-        class="photo-card relative overflow-hidden rounded-2xl aspect-[3/4] bg-umber/5"
+        class="photo-card relative overflow-hidden rounded-2xl aspect-3/4 bg-umber/5"
         data-photo-card
         data-interval="5000"
       >
@@ -50,8 +50,8 @@ const heroImages = [
             loading={i === 0 ? 'eager' : 'lazy'}
             class:list={[
               'photo-slide absolute inset-0 w-full h-full object-cover',
-              'transition-opacity duration-[1500ms] ease-in-out',
-              i === 0 ? 'opacity-100 z-[2]' : 'opacity-0 z-[1]',
+              'transition-opacity duration-1500 ease-in-out',
+              i === 0 ? 'opacity-100 z-2' : 'opacity-0 z-1',
             ]}
             data-slide
           />
@@ -243,8 +243,8 @@ const heroImages = [
            * Keep the active image above the previous image.
            * This allows the two images to overlap during the fade.
            */
-          slide.classList.toggle('z-[2]', isActive);
-          slide.classList.toggle('z-[1]', !isActive);
+          slide.classList.toggle('z-2', isActive);
+          slide.classList.toggle('z-1', !isActive);
         });
 
         dots.forEach((dot, i) => {
@@ -335,7 +335,7 @@ const heroImages = [
     };
 
     document
-      .querySelectorAll<HTMLButtonElement>('.amount-preset')
+      .querySelectorAll('.amount-preset')
       .forEach((btn) => {
         btn.addEventListener('click', () => {
           if (amountInput) {
@@ -352,11 +352,8 @@ const heroImages = [
         return;
       }
 
-      const nameInput =
-        document.getElementById('name') as HTMLInputElement | null;
-
-      const emailInput =
-        document.getElementById('email') as HTMLInputElement | null;
+      const nameInput = document.getElementById('name');
+      const emailInput = document.getElementById('email');
 
       if (!nameInput || !emailInput) {
         setStatus('Please complete the donation form.', 'error');

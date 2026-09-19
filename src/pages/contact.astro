@@ -19,7 +19,7 @@ import Layout from '../layouts/Layout.astro';
 
       <!-- Slideshow -->
       <div
-        class="photo-card relative overflow-hidden rounded-2xl aspect-[3/4] bg-umber/5"
+        class="photo-card relative overflow-hidden rounded-2xl aspect-3/4 bg-umber/5"
         data-photo-card
         data-interval="5000"
       >
@@ -27,7 +27,7 @@ import Layout from '../layouts/Layout.astro';
           src="/images/contact/contact-hero.jpg"
           alt="Dosis Kardia Foundation team at work"
           loading="eager"
-          class="photo-slide absolute inset-0 w-full h-full object-cover opacity-100 z-[2] transition-opacity duration-[1500ms] ease-in-out"
+          class="photo-slide absolute inset-0 w-full h-full object-cover opacity-100 z-2 transition-opacity duration-1500 ease-in-out"
           data-slide
         />
 
@@ -35,7 +35,7 @@ import Layout from '../layouts/Layout.astro';
           src="/images/contact/contact-hero2.jpg"
           alt="Dosis Kardia Foundation visiting young people in the community"
           loading="lazy"
-          class="photo-slide absolute inset-0 w-full h-full object-cover opacity-0 z-[1] transition-opacity duration-[1500ms] ease-in-out"
+          class="photo-slide absolute inset-0 w-full h-full object-cover opacity-0 z-1 transition-opacity duration-1500 ease-in-out"
           data-slide
         />
 
@@ -43,7 +43,7 @@ import Layout from '../layouts/Layout.astro';
           src="/images/contact/contact-hero3.jpg"
           alt="Dosis Kardia Foundation team ministering to children"
           loading="lazy"
-          class="photo-slide absolute inset-0 w-full h-full object-cover opacity-0 z-[1] transition-opacity duration-[1500ms] ease-in-out"
+          class="photo-slide absolute inset-0 w-full h-full object-cover opacity-0 z-1 transition-opacity duration-1500 ease-in-out"
           data-slide
         />
 
@@ -211,8 +211,8 @@ import Layout from '../layouts/Layout.astro';
             slide.classList.toggle('opacity-100', active);
             slide.classList.toggle('opacity-0', !active);
 
-            slide.classList.toggle('z-[2]', active);
-            slide.classList.toggle('z-[1]', !active);
+            slide.classList.toggle('z-2', active);
+            slide.classList.toggle('z-1', !active);
           });
 
           dots.forEach((dot, i) => {
