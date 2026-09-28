@@ -1,16 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import PhotoCard from '../components/PhotoCard.astro';
-import { BookOpen, UtensilsCrossed, Home, Stethoscope, HandHeart } from '@lucide/astro';
+import { BookOpen, UtensilsCrossed, Home, Stethoscope, HandHeart, Handshake } from '@lucide/astro';
 
 const programs = [
   {
-    name: 'Education',
+    name: 'Education & Scholarships',
     slug: 'education',
     icon: BookOpen,
     blurb: 'Building minds for a better tomorrow.',
     detail:
-      'We provide learning materials and guidance so children can take their first steps toward a brighter future, whatever their starting point.',
+      'We give scholarships to children who need help staying in school, and provide learning materials and guidance so every child can take their first steps toward a brighter future, whatever their starting point.',
   },
   {
     name: 'Food & Clothing',
@@ -42,18 +42,26 @@ const programs = [
     icon: HandHeart,
     blurb: 'Teaching and mentoring through the Word of God.',
     detail:
-      'For four years, we have visited these young people consistently, teaching and discipling them in the Word of God and mentoring them toward responsible, purposeful living, helping them rediscover their identity beyond survival.',
+      'For four years, we have visited young people consistently, teaching and discipling them in the Word of God and mentoring them toward responsible, purposeful living, helping them rediscover their identity beyond survival.',
+  },
+  {
+    name: 'Partnerships',
+    slug: 'partnerships',
+    icon: Handshake,
+    blurb: 'Reaching more children, together.',
+    detail:
+      "We partner with other children's homes and organisations so that more children can be reached, supported, and cared for than we could ever reach alone.",
   },
 ];
 ---
 
 <Layout
   title="Programs"
-  description="Explore Dosis Kardia Foundation's five programs: education, food and clothing, shelter, medical care, and discipleship for vulnerable children."
+  description="Explore Dosis Kardia Foundation's programs: education and scholarships, food and clothing, shelter, medical care, discipleship, and partnerships with other children's homes."
 >
   <section class="pt-40 pb-16 px-6 max-w-3xl mx-auto text-center">
     <h1 class="font-display text-4xl md:text-5xl text-umber font-semibold">
-      Five ways we show up for a child.
+      Six ways we show up for a child.
     </h1>
     <p class="mt-6 text-ink/70 leading-relaxed">
       We go beyond temporary relief. We create lasting change, nurturing

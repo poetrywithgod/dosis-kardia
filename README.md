@@ -1,7 +1,7 @@
 # Dosis Kardia Foundation — Website
 
 Website and admin dashboard for Dosis Kardia Foundation, a faith-driven
-children's charity in Port Harcourt, Nigeria (RC: 164807).
+children's charity in Nigeria (RC: 164807).
 
 **Stack:** Astro + Tailwind v4 + Supabase + Paystack + Resend, deployed on Vercel.
 **Live:** https://dosis-kardia.vercel.app/
@@ -40,7 +40,8 @@ Row Level Security policies.
 
 - `/` — home
 - `/about` — story, vision, mission, objectives, core values
-- `/programs` — the 5 pillars (education, food, shelter, medical, guidance)
+- `/programs` — the 6 programs (education and scholarships, food, shelter, medical, guidance, partnerships)
+- `/our-work` — information-first page: what we do, where giving goes, outreach diary
 - `/impact` — impact figures and gallery
 - `/donate` — Paystack inline checkout, verified server-side
 - `/contact` — contact form, saved to Supabase
@@ -56,9 +57,17 @@ Row Level Security policies.
 ## Images
 
 Real photos live in `public/images/`, grouped by page (`home`, `about`,
-`programs`, `impact`, `donate`, `contact`, `slideshow`).
+`programs`, `impact`, `donate`, `contact`, `slideshow`). The Partnerships program expects
+`public/images/programs/partnerships.jpg`.
 
 ## Content notes
+
+- The foundation supports vulnerable children generally (street-connected children, scholarship
+  children, and children reached through partner homes) and is not limited to Port Harcourt or
+  Rivers State. Avoid city- or state-specific wording and avoid describing all beneficiaries as
+  street children.
+- The site is information-first: Donate is a plain link in the nav, and CTAs lead with
+  "See our work" before "Give".
 
 - The foundation's owners and runners are deliberately not named anywhere on
   the site. Keep it that way when adding or editing copy.
