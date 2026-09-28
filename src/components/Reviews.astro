@@ -1,0 +1,314 @@
+---
+interface Props {
+  heading?: string;
+  intro?: string;
+}
+const {
+  heading = 'What people are saying',
+  intro = 'Words from people who have seen our work.',
+} = Astro.props;
+---
+
+<section class="py-20 overflow-hidden" id="reviews">
+  <div class="max-w-3xl mx-auto px-6 text-center mb-10">
+    <h2 class="font-display text-3xl text-umber mb-3 reveal">{heading}</h2>
+    <p class="text-ink/70 reveal">{intro}</p>
+  </div>
+
+  <!-- Cards drift from right to left. Built by the script below from the
+       approved reviews returned by /api/reviews. -->
+  <div id="rv-marquee" class="rv-marquee hidden" aria-label="Reviews from our visitors">
+    <div id="rv-track" class="rv-track"></div>
+  </div>
+  <p id="rv-empty" class="hidden text-center text-ink/60 px-6">
+    No reviews yet. Be the first to share your experience.
+  </p>
+
+  <div class="max-w-xl mx-auto px-6 mt-10 text-center">
+    <button
+      id="rv-open"
+      type="button"
+      class="border border-umber/25 text-umber px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-umber/5 transition-colors"
+      aria-expanded="false"
+      aria-controls="rv-form"
+    >
+      Share your experience
+    </button>
+
+    <form id="rv-form" class="hidden text-left mt-6 bg-white/70 border border-umber/10 rounded-2xl p-6 space-y-4" novalidate>
+      <div>
+        <label for="rv-name" class="block text-sm font-medium text-umber mb-1">Your name</label>
+        <input
+          id="rv-name" name="name" type="text" maxlength="60" autocomplete="name"
+          class="w-full rounded-xl border border-umber/15 bg-white px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-clay/40"
+        />
+      </div>
+
+      <div>
+        <span class="block text-sm font-medium text-umber mb-1">Rating <span class="text-ink/40 font-normal">(optional)</span></span>
+        <div id="rv-stars" class="flex gap-1" role="radiogroup" aria-label="Rating">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button type="button" role="radio" aria-checked="false" aria-label={`${n} star${n > 1 ? 's' : ''}`} data-value={n} class="rv-star-btn p-0.5 text-umber/25 transition-colors">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label for="rv-message" class="block text-sm font-medium text-umber mb-1">Your review</label>
+        <textarea
+          id="rv-message" name="message" rows="4" maxlength="500"
+          class="w-full rounded-xl border border-umber/15 bg-white px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-clay/40"
+        ></textarea>
+        <p class="text-xs text-ink/40 mt-1">Reviews are shown on the site once our team has approved them.</p>
+      </div>
+
+      <!-- Honeypot: hidden from people, tempting to bots -->
+      <div class="absolute -left-[9999px]" aria-hidden="true">
+        <label for="rv-website">Website</label>
+        <input id="rv-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button
+          id="rv-submit" type="submit"
+          class="bg-clay text-ivory px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-umber transition-colors disabled:opacity-50"
+        >
+          Send review
+        </button>
+        <p id="rv-status" class="text-sm min-h-5" aria-live="polite"></p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<style is:global>
+  .rv-marquee {
+    position: relative;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  }
+  .rv-track {
+    display: flex;
+    width: max-content;
+  }
+  .rv-set {
+    display: flex;
+    gap: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  /* Moves right to left. The track holds two identical sets, so shifting by
+     half its width loops seamlessly. */
+  .rv-track.rv-animate {
+    animation: rv-scroll var(--rv-duration, 40s) linear infinite;
+  }
+  .rv-marquee:hover .rv-track.rv-animate,
+  .rv-marquee:focus-within .rv-track.rv-animate {
+    animation-play-state: paused;
+  }
+  @keyframes rv-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  /* Reduced motion: no drifting, just a swipeable row. */
+  .rv-marquee.rv-static {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+    padding: 0 1.5rem 0.5rem;
+  }
+  .rv-card {
+    flex: 0 0 auto;
+    width: min(20rem, 82vw);
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(43, 35, 24, 0.1);
+    border-radius: 1rem;
+    padding: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .rv-card .rv-msg {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: rgba(43, 35, 24, 0.75);
+    white-space: pre-line;
+  }
+  .rv-card .rv-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #2b2318;
+  }
+  .rv-card .rv-stars { display: flex; gap: 2px; color: #c1481d; }
+  .rv-star-btn.is-on { color: #c1481d; }
+</style>
+
+<script>
+  type Review = { name: string; rating: number | null; message: string };
+
+  const marquee = document.getElementById('rv-marquee')!;
+  const track = document.getElementById('rv-track')!;
+  const emptyMsg = document.getElementById('rv-empty')!;
+  const openBtn = document.getElementById('rv-open') as HTMLButtonElement;
+  const form = document.getElementById('rv-form') as HTMLFormElement;
+  const nameInput = document.getElementById('rv-name') as HTMLInputElement;
+  const messageInput = document.getElementById('rv-message') as HTMLTextAreaElement;
+  const websiteInput = document.getElementById('rv-website') as HTMLInputElement;
+  const submitBtn = document.getElementById('rv-submit') as HTMLButtonElement;
+  const statusEl = document.getElementById('rv-status')!;
+  const starButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('.rv-star-btn'));
+
+  const STAR_SVG =
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+
+  function buildCard(r: Review) {
+    const card = document.createElement('article');
+    card.className = 'rv-card';
+
+    if (r.rating && r.rating >= 1 && r.rating <= 5) {
+      const stars = document.createElement('div');
+      stars.className = 'rv-stars';
+      stars.setAttribute('aria-label', `${r.rating} out of 5 stars`);
+      stars.innerHTML = STAR_SVG.repeat(Math.round(r.rating)); // static markup, number only
+      card.appendChild(stars);
+    }
+
+    // textContent, never innerHTML: review text comes from the public.
+    const msg = document.createElement('p');
+    msg.className = 'rv-msg';
+    msg.textContent = `\u201C${r.message}\u201D`;
+    card.appendChild(msg);
+
+    const name = document.createElement('p');
+    name.className = 'rv-name';
+    name.textContent = r.name;
+    card.appendChild(name);
+
+    return card;
+  }
+
+  function renderMarquee(reviews: Review[]) {
+    track.innerHTML = '';
+    track.classList.remove('rv-animate');
+    marquee.classList.remove('rv-static');
+    marquee.classList.remove('hidden');
+    emptyMsg.classList.add('hidden');
+
+    const makeSet = () => {
+      const frag = document.createDocumentFragment();
+      reviews.forEach((r) => frag.appendChild(buildCard(r)));
+      return frag;
+    };
+
+    const first = document.createElement('div');
+    first.className = 'rv-set';
+    first.appendChild(makeSet());
+    track.appendChild(first);
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      marquee.classList.add('rv-static');
+      return;
+    }
+
+    // Make one set at least as wide as the screen, so there are no gaps.
+    let guard = 0;
+    while (first.scrollWidth < marquee.clientWidth * 1.1 && guard < 12) {
+      first.appendChild(makeSet());
+      guard += 1;
+    }
+
+    const copy = first.cloneNode(true) as HTMLElement;
+    copy.setAttribute('aria-hidden', 'true');
+    track.appendChild(copy);
+
+    const pxPerSecond = 45;
+    track.style.setProperty('--rv-duration', `${Math.max(20, first.scrollWidth / pxPerSecond)}s`);
+    track.classList.add('rv-animate');
+  }
+
+  async function loadReviews() {
+    try {
+      const res = await fetch('/api/reviews');
+      const data = await res.json();
+      const reviews: Review[] = Array.isArray(data.reviews) ? data.reviews : [];
+      if (reviews.length === 0) {
+        marquee.classList.add('hidden');
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+      renderMarquee(reviews);
+    } catch {
+      marquee.classList.add('hidden');
+      emptyMsg.classList.remove('hidden');
+    }
+  }
+
+  // Star picker
+  let rating = 0;
+  function paintStars() {
+    starButtons.forEach((b) => {
+      const v = Number(b.dataset.value);
+      b.classList.toggle('is-on', v <= rating);
+      b.setAttribute('aria-checked', String(v === rating));
+    });
+  }
+  starButtons.forEach((b) =>
+    b.addEventListener('click', () => {
+      const v = Number(b.dataset.value);
+      rating = rating === v ? 0 : v; // click again to clear
+      paintStars();
+    })
+  );
+
+  openBtn.addEventListener('click', () => {
+    const opening = form.classList.toggle('hidden') === false;
+    openBtn.setAttribute('aria-expanded', String(opening));
+    if (opening) nameInput.focus();
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = nameInput.value.trim();
+    const message = messageInput.value.trim();
+
+    const fail = (text: string) => {
+      statusEl.textContent = text;
+      statusEl.className = 'text-sm min-h-5 text-clay';
+    };
+
+    if (name.length < 2) return fail('Please enter your name.');
+    if (message.length < 10) return fail('Please write at least a sentence (10 characters).');
+
+    submitBtn.disabled = true;
+    statusEl.textContent = 'Sending…';
+    statusEl.className = 'text-sm min-h-5 text-ink/50';
+
+    try {
+      const res = await fetch('/api/submit-review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, message, rating: rating || null, website: websiteInput.value }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        form.reset();
+        rating = 0;
+        paintStars();
+        statusEl.textContent = 'Thank you! Your review will appear once it has been approved.';
+        statusEl.className = 'text-sm min-h-5 text-olive';
+      } else {
+        fail(result.error || 'Could not send your review. Please try again.');
+      }
+    } catch {
+      fail('Could not send your review. Please try again.');
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  loadReviews();
+</script>

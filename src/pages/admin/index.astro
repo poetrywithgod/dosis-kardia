@@ -1,6 +1,6 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
-import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
+import { Mail, HandCoins, LogOut, Bell, Settings, Star } from '@lucide/astro';
 ---
 
 <AdminLayout title="Dashboard">
@@ -29,7 +29,7 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
       </header>
 
       <!-- Tabs -->
-      <div class="flex gap-1 mx-4 mt-4 p-1 bg-umber/5 rounded-full">
+      <div class="flex gap-1 mx-4 mt-4 p-1 bg-umber/5 rounded-full overflow-x-auto">
         <button
           class="tab-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-full text-sm font-semibold text-ink/50 transition-all"
           data-tab="messages"
@@ -48,6 +48,14 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
         </button>
         <button
           class="tab-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-full text-sm font-semibold text-ink/50 transition-all"
+          data-tab="reviews"
+        >
+          <Star size={16} />
+          Reviews
+          <span id="reviews-count-badge" class="hidden bg-clay text-ivory text-[10px] font-bold min-w-[16px] h-4 rounded-full flex items-center justify-center px-1">0</span>
+        </button>
+        <button
+          class="tab-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-full text-sm font-semibold text-ink/50 transition-all"
           data-tab="settings"
         >
           <Settings size={16} />
@@ -59,6 +67,14 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
       <main class="px-4 pt-4 space-y-3">
         <div id="messages-panel" class="space-y-3"></div>
         <div id="donations-panel" class="space-y-3 hidden"></div>
+        <div id="reviews-panel" class="space-y-3 hidden">
+          <div class="flex gap-2" id="review-filters">
+            <button class="review-filter text-xs font-semibold px-3 py-1.5 rounded-full border border-umber/15 text-ink/50" data-filter="pending">Pending <span id="rf-pending" class="opacity-60"></span></button>
+            <button class="review-filter text-xs font-semibold px-3 py-1.5 rounded-full border border-umber/15 text-ink/50" data-filter="approved">Approved <span id="rf-approved" class="opacity-60"></span></button>
+            <button class="review-filter text-xs font-semibold px-3 py-1.5 rounded-full border border-umber/15 text-ink/50" data-filter="rejected">Rejected <span id="rf-rejected" class="opacity-60"></span></button>
+          </div>
+          <div id="reviews-list" class="space-y-3"></div>
+        </div>
         <div id="settings-panel" class="space-y-4 hidden">
           <div class="bg-white border border-umber/10 rounded-2xl p-4 shadow-[0_1px_2px_rgba(43,35,24,0.04)]">
             <h2 class="font-semibold text-umber text-sm mb-1">Invite an admin</h2>
@@ -88,6 +104,11 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
   </div>
 
   <style>
+    .review-filter.active {
+      background: #2B2318;
+      color: #FFFFFF;
+      border-color: #2B2318;
+    }
     .tab-btn.active {
       background: #FFFFFF;
       color: #2B2318;
@@ -121,6 +142,14 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
       paystack_status: string;
       created_at: string;
     };
+    type Review = {
+      id: string;
+      name: string;
+      rating: number | null;
+      message: string;
+      status: 'pending' | 'approved' | 'rejected';
+      created_at: string;
+    };
     type Admin = {
       id: string;
       email: string;
@@ -133,6 +162,9 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
     const messagesPanel = document.getElementById('messages-panel')!;
     const donationsPanel = document.getElementById('donations-panel')!;
     const settingsPanel = document.getElementById('settings-panel')!;
+    const reviewsPanel = document.getElementById('reviews-panel')!;
+    const reviewsList = document.getElementById('reviews-list')!;
+    const reviewsCountBadge = document.getElementById('reviews-count-badge')!;
     const adminsList = document.getElementById('admins-list')!;
     const inviteForm = document.getElementById('invite-form') as HTMLFormElement;
     const inviteEmail = document.getElementById('invite-email') as HTMLInputElement;
@@ -145,7 +177,10 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
 
     let unseenMessages = 0;
     let unseenDonations = 0;
-    let activeTab: 'messages' | 'donations' | 'settings' = 'messages';
+    let activeTab: 'messages' | 'donations' | 'reviews' | 'settings' = 'messages';
+    let reviews: Review[] = [];
+    let reviewFilter: 'pending' | 'approved' | 'rejected' = 'pending';
+    let reviewsError = false;
     let currentUserId: string | null = null;
     let adminsLoaded = false;
 
@@ -156,7 +191,15 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
       new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(n);
 
     function updateBadges() {
-      const total = unseenMessages + unseenDonations;
+      const pendingReviews = reviews.filter((r) => r.status === 'pending').length;
+      const total = unseenMessages + unseenDonations + pendingReviews;
+
+      if (pendingReviews > 0) {
+        reviewsCountBadge.textContent = String(pendingReviews);
+        reviewsCountBadge.classList.remove('hidden');
+      } else {
+        reviewsCountBadge.classList.add('hidden');
+      }
       if (total > 0) {
         headerBadge.textContent = String(total);
         headerBadge.classList.remove('hidden');
@@ -362,7 +405,7 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
       return el;
     }
 
-    function setActiveTab(tab: 'messages' | 'donations' | 'settings') {
+    function setActiveTab(tab: 'messages' | 'donations' | 'reviews' | 'settings') {
       activeTab = tab;
       document.querySelectorAll('.tab-btn').forEach((btn) => {
         const isActive = (btn as HTMLElement).dataset.tab === tab;
@@ -370,8 +413,9 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
       });
       messagesPanel.classList.toggle('hidden', tab !== 'messages');
       donationsPanel.classList.toggle('hidden', tab !== 'donations');
+      reviewsPanel.classList.toggle('hidden', tab !== 'reviews');
       settingsPanel.classList.toggle('hidden', tab !== 'settings');
-      if (tab === 'settings') emptyState.classList.add('hidden');
+      if (tab === 'settings' || tab === 'reviews') emptyState.classList.add('hidden');
 
       if (tab === 'messages') unseenMessages = 0;
       if (tab === 'donations') unseenDonations = 0;
@@ -381,9 +425,119 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
 
     document.querySelectorAll('.tab-btn').forEach((btn) => {
       btn.addEventListener('click', () =>
-        setActiveTab((btn as HTMLElement).dataset.tab as 'messages' | 'donations' | 'settings')
+        setActiveTab((btn as HTMLElement).dataset.tab as 'messages' | 'donations' | 'reviews' | 'settings')
       );
     });
+
+    // ---------- Reviews moderation ----------
+    function starsText(n: number | null) {
+      if (!n) return 'No rating';
+      return '★'.repeat(n) + '☆'.repeat(5 - n);
+    }
+
+    async function setReviewStatus(id: string, status: Review['status']) {
+      const { error } = await supabaseBrowser
+        .from('reviews')
+        .update({ status, reviewed_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) {
+        alert('Could not update this review. Try again.');
+        return;
+      }
+      const r = reviews.find((x) => x.id === id);
+      if (r) r.status = status;
+      renderReviews();
+      updateBadges();
+    }
+
+    async function deleteReview(id: string) {
+      if (!confirm('Delete this review? This cannot be undone.')) return;
+      const { error } = await supabaseBrowser.from('reviews').delete().eq('id', id);
+      if (error) {
+        alert('Could not delete this review. Try again.');
+        return;
+      }
+      reviews = reviews.filter((x) => x.id !== id);
+      renderReviews();
+      updateBadges();
+    }
+
+    function renderReviewCard(r: Review) {
+      const el = document.createElement('div');
+      el.className = 'bg-white border border-umber/10 rounded-2xl p-4 shadow-[0_1px_2px_rgba(43,35,24,0.04)]';
+      el.dataset.reviewId = r.id;
+
+      const actions: string[] = [];
+      if (r.status !== 'approved') {
+        actions.push('<button data-act="approve" class="text-xs font-semibold bg-[#4A5D45] text-ivory px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity">Approve</button>');
+      }
+      if (r.status === 'approved') {
+        actions.push('<button data-act="unpublish" class="text-xs font-semibold text-ink/60 px-3 py-1.5 rounded-full border border-umber/15 hover:bg-umber/5 transition-colors">Unpublish</button>');
+      }
+      if (r.status === 'pending') {
+        actions.push('<button data-act="reject" class="text-xs font-semibold text-ink/60 px-3 py-1.5 rounded-full border border-umber/15 hover:bg-umber/5 transition-colors">Reject</button>');
+      }
+      actions.push('<button data-act="delete" class="text-xs font-semibold text-ink/40 hover:bg-[#C1481D] hover:text-ivory hover:border-[#C1481D] transition-colors px-3 py-1.5 rounded-full border border-umber/15">Delete</button>');
+
+      el.innerHTML = `
+        <div class="flex items-start justify-between gap-3 mb-1">
+          <p class="font-semibold text-umber text-sm">${escapeHtml(r.name)}</p>
+          <p class="text-xs text-ink/35 shrink-0">${fmtDate(r.created_at)}</p>
+        </div>
+        <p class="text-xs text-clay mb-2" aria-label="Rating">${escapeHtml(starsText(r.rating))}</p>
+        <p class="text-sm text-ink/70 leading-relaxed whitespace-pre-wrap mb-3">${escapeHtml(r.message)}</p>
+        <div class="flex flex-wrap items-center gap-2">${actions.join('')}</div>
+      `;
+
+      el.querySelector('[data-act="approve"]')?.addEventListener('click', () => setReviewStatus(r.id, 'approved'));
+      el.querySelector('[data-act="unpublish"]')?.addEventListener('click', () => setReviewStatus(r.id, 'pending'));
+      el.querySelector('[data-act="reject"]')?.addEventListener('click', () => setReviewStatus(r.id, 'rejected'));
+      el.querySelector('[data-act="delete"]')?.addEventListener('click', () => deleteReview(r.id));
+      return el;
+    }
+
+    function renderReviews() {
+      (['pending', 'approved', 'rejected'] as const).forEach((s) => {
+        const count = reviews.filter((r) => r.status === s).length;
+        const label = document.getElementById(`rf-${s}`);
+        if (label) label.textContent = count > 0 ? `(${count})` : '';
+      });
+      document.querySelectorAll('.review-filter').forEach((btn) => {
+        btn.classList.toggle('active', (btn as HTMLElement).dataset.filter === reviewFilter);
+      });
+
+      reviewsList.innerHTML = '';
+      if (reviewsError) {
+        reviewsList.innerHTML = '<p class="text-center text-sm text-ink/30 py-8">Could not load reviews. If this is a new feature, run supabase/reviews.sql in the Supabase SQL editor.</p>';
+        return;
+      }
+      const shown = reviews.filter((r) => r.status === reviewFilter);
+      if (shown.length === 0) {
+        reviewsList.innerHTML = `<p class="text-center text-sm text-ink/30 py-8">No ${reviewFilter} reviews.</p>`;
+        return;
+      }
+      shown.forEach((r) => reviewsList.appendChild(renderReviewCard(r)));
+    }
+
+    document.querySelectorAll('.review-filter').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        reviewFilter = (btn as HTMLElement).dataset.filter as typeof reviewFilter;
+        renderReviews();
+      });
+    });
+
+    // Loaded separately from messages and donations so a missing reviews
+    // table can never break the rest of the dashboard.
+    async function loadReviews() {
+      const { data, error } = await supabaseBrowser
+        .from('reviews')
+        .select('*')
+        .order('created_at', { ascending: false });
+      reviewsError = !!error;
+      reviews = (data ?? []) as Review[];
+      renderReviews();
+      updateBadges();
+    }
 
     function renderAdminRow(a: Admin) {
       const el = document.createElement('div');
@@ -549,6 +703,17 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
         .subscribe();
 
       supabaseBrowser
+        .channel('admin-reviews')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reviews' }, (payload) => {
+          const incoming = payload.new as Review;
+          if (reviews.some((r) => r.id === incoming.id)) return;
+          reviews.unshift(incoming);
+          renderReviews();
+          updateBadges();
+        })
+        .subscribe();
+
+      supabaseBrowser
         .channel('admin-donations')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'donations' }, (payload) => {
           donationsPanel.prepend(renderDonation(payload.new as Donation));
@@ -574,6 +739,7 @@ import { Mail, HandCoins, LogOut, Bell, Settings } from '@lucide/astro';
       dashboard.classList.remove('hidden');
       setActiveTab('messages');
       await loadData();
+      await loadReviews();
       subscribeRealtime();
     });
   </script>

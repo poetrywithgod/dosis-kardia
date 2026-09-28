@@ -33,7 +33,7 @@ See `.env.example`.
 
 Run `supabase/schema.sql` in your Supabase project's SQL editor before
 testing donations, the contact form or the admin dashboard. It creates the
-`donations`, `contact_messages` and `message_replies` tables and their
+`donations`, `contact_messages`, `message_replies` and `reviews` tables and their
 Row Level Security policies.
 
 ## Pages
@@ -46,13 +46,21 @@ Row Level Security policies.
 - `/donate` — Paystack inline checkout, verified server-side
 - `/contact` — contact form, saved to Supabase
 - `/admin` — admin dashboard (installable as a PWA): donations, contact
-  messages and reply threads, and admin management with role-based access.
+  messages and reply threads, review moderation, and admin invites/removal.
   Includes `/admin/login` and `/admin/reset-password`.
 
 ## API routes
 
 `contact`, `verify-payment`, `reply-message`, `create-admin`, `list-admins`,
-`remove-admin` (all under `src/pages/api/`).
+`remove-admin`, `submit-review`, `reviews` (all under `src/pages/api/`).
+
+## Reviews
+
+Visitors can submit a review (name, optional 1-5 rating, message) from the home and Our Work
+pages. Submissions are saved as `pending` and only appear on the site, in the animated
+right-to-left card strip, after an admin approves them in the dashboard's Reviews tab.
+If you are setting up an existing database, run `supabase/reviews.sql` once in the Supabase
+SQL editor.
 
 ## Images
 

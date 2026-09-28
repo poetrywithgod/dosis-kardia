@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import HeroSlideshow from '../components/HeroSlideshow.astro';
+import Reviews from '../components/Reviews.astro';
 import PhotoCard from '../components/PhotoCard.astro';
 import { BookOpen, UtensilsCrossed, Home, Stethoscope, HandHeart, Handshake, HeartPulse, ArrowRight } from '@lucide/astro';
 
@@ -110,7 +111,7 @@ const pillars = [
       clothing them, attending to their medical needs, giving scholarships,
       and working with other children's homes to reach more of them.
     </p>
-    <div class="grid grid-cols-2 gap-10 max-w-md mx-auto reveal-group" id="impact-counters">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12 max-w-3xl mx-auto reveal-group" id="impact-counters">
       <div class="reveal">
         <p class="font-display text-6xl text-clay counter" data-target="350">0</p>
         <p class="text-sm text-ink/60 mt-2">young people reached</p>
@@ -119,8 +120,18 @@ const pillars = [
         <p class="font-display text-6xl text-clay counter" data-target="4">0</p>
         <p class="text-sm text-ink/60 mt-2">years of consistent outreach</p>
       </div>
+      <div class="reveal">
+        <p class="font-display text-6xl text-clay counter" data-target="15" data-suffix="+">0</p>
+        <p class="text-sm text-ink/60 mt-2">medical outreaches carried out</p>
+      </div>
+      <div class="reveal">
+        <p class="font-display text-6xl text-clay counter" data-target="100" data-suffix="%">0</p>
+        <p class="text-sm text-ink/60 mt-2">school fees paid</p>
+      </div>
     </div>
   </section>
+
+  <Reviews />
 
   <!-- Learn more band. Giving is offered gently, after the information. -->
   <section class="bg-clay py-20 px-6 text-center reveal">
@@ -152,7 +163,7 @@ const pillars = [
       const start = performance.now();
       const step = (now: number) => {
         const progress = Math.min((now - start) / duration, 1);
-        el.textContent = Math.floor(progress * target).toLocaleString();
+        el.textContent = Math.floor(progress * target).toLocaleString() + (el.dataset.suffix || '');
         if (progress < 1) requestAnimationFrame(step);
       };
       requestAnimationFrame(step);

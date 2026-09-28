@@ -16,8 +16,8 @@ import PhotoCard from '../components/PhotoCard.astro';
   <!-- Stat block: the two hard figures we do have. Once the client shares
        more (meals served, dates, etc.), add more <div> blocks here following
        the same markup, and reuse the same count-up script as the homepage. -->
-  <section class="max-w-3xl mx-auto px-6 pb-16 text-center">
-    <div class="grid grid-cols-2 gap-10 max-w-md mx-auto reveal-group" id="impact-page-counters">
+  <section class="max-w-4xl mx-auto px-6 pb-16 text-center">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12 max-w-3xl mx-auto reveal-group" id="impact-page-counters">
       <div class="reveal">
         <p class="font-display text-6xl text-clay counter" data-target="350">0</p>
         <p class="text-sm text-ink/60 mt-2">young people reached</p>
@@ -25,6 +25,14 @@ import PhotoCard from '../components/PhotoCard.astro';
       <div class="reveal">
         <p class="font-display text-6xl text-clay counter" data-target="4">0</p>
         <p class="text-sm text-ink/60 mt-2">years of consistent outreach</p>
+      </div>
+      <div class="reveal">
+        <p class="font-display text-6xl text-clay counter" data-target="15" data-suffix="+">0</p>
+        <p class="text-sm text-ink/60 mt-2">medical outreaches carried out</p>
+      </div>
+      <div class="reveal">
+        <p class="font-display text-6xl text-clay counter" data-target="100" data-suffix="%">0</p>
+        <p class="text-sm text-ink/60 mt-2">school fees paid</p>
       </div>
     </div>
   </section>
@@ -73,7 +81,7 @@ import PhotoCard from '../components/PhotoCard.astro';
       const start = performance.now();
       const step = (now: number) => {
         const progress = Math.min((now - start) / duration, 1);
-        el.textContent = Math.floor(progress * target).toLocaleString();
+        el.textContent = Math.floor(progress * target).toLocaleString() + (el.dataset.suffix || '');
         if (progress < 1) requestAnimationFrame(step);
       };
       requestAnimationFrame(step);
