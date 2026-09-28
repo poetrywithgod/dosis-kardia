@@ -1,0 +1,93 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { UtensilsCrossed, Stethoscope, GraduationCap, BookOpen, HandHeart } from '@lucide/astro';
+
+// Where your giving goes: only things the foundation actually does.
+const uses = [
+  { icon: UtensilsCrossed, title: 'Food & clothing', text: 'Meals and clothes handed out on our regular street outreach visits.' },
+  { icon: Stethoscope, title: 'Medical needs', text: 'Basic healthcare and urgent medical attention for children who have no one else to pay for it.' },
+  { icon: GraduationCap, title: 'School sponsorship', text: 'School fees for young people we sponsor through school.' },
+  { icon: BookOpen, title: 'Learning materials', text: 'Books and materials so children can learn and keep learning.' },
+  { icon: HandHeart, title: 'Guidance & discipleship', text: 'Consistent visits, teaching and mentoring in the Word of God.' },
+];
+
+// Outreach diary. Add a new entry at the TOP whenever there is something to
+// report; the section stays hidden while this list is empty.
+// Keep entries free of children's names and other identifying details.
+// Example: { date: 'March 2026', title: 'Food and clothing outreach', text: 'What happened, in a sentence or two.' }
+const updates: { date: string; title: string; text: string }[] = [];
+---
+
+<Layout
+  title="Our Work"
+  description="See what Dosis Kardia Foundation does for vulnerable, street-connected children in Port Harcourt, and where your giving goes."
+>
+  <section class="pt-40 pb-16 px-6 max-w-3xl mx-auto text-center">
+    <p class="font-script text-clay text-2xl mb-2">Our work</p>
+    <h1 class="font-display text-4xl md:text-5xl text-umber font-semibold">
+      See where your giving goes.
+    </h1>
+    <p class="mt-6 text-ink/70 leading-relaxed">
+      We would rather you see the work than take our word for it. For four
+      years we have been on the streets of Port Harcourt, visiting children
+      with no parental care and no safe place to go. Here is what that looks
+      like, and what your gift helps us do.
+    </p>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-6 pb-16 text-center">
+    <div class="grid grid-cols-2 gap-10 max-w-md mx-auto reveal-group">
+      <div class="reveal">
+        <p class="font-display text-6xl text-clay">350+</p>
+        <p class="text-sm text-ink/60 mt-2">young people reached</p>
+      </div>
+      <div class="reveal">
+        <p class="font-display text-6xl text-clay">4</p>
+        <p class="text-sm text-ink/60 mt-2">years of consistent outreach</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-5xl mx-auto px-6 pb-20">
+    <h2 class="font-display text-3xl text-umber mb-3 text-center reveal">What your gift goes into</h2>
+    <p class="text-ink/70 text-center max-w-xl mx-auto mb-10 reveal">
+      Every naira supports the direct care of children we visit in person.
+    </p>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 reveal-group">
+      {uses.map((u) => (
+        <div class="reveal bg-white/60 rounded-2xl p-7 border border-umber/10">
+          <div class="text-clay mb-3"><u.icon size={32} stroke-width={1.75} /></div>
+          <h3 class="font-display text-xl text-umber mb-2">{u.title}</h3>
+          <p class="text-sm text-ink/70 leading-relaxed">{u.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  {updates.length > 0 && (
+    <section class="max-w-3xl mx-auto px-6 pb-20">
+      <h2 class="font-display text-3xl text-umber mb-10 text-center reveal">Outreach diary</h2>
+      <ol class="space-y-6 reveal-group">
+        {updates.map((u) => (
+          <li class="reveal bg-white/60 rounded-2xl p-6 border border-umber/10">
+            <p class="text-clay text-sm font-medium mb-1">{u.date}</p>
+            <h3 class="font-display text-xl text-umber mb-2">{u.title}</h3>
+            <p class="text-sm text-ink/70 leading-relaxed">{u.text}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  )}
+
+  <section class="bg-clay py-20 px-6 text-center reveal">
+    <h2 class="font-display text-3xl text-ivory mb-3">Be part of it</h2>
+    <p class="text-ivory/80 max-w-lg mx-auto mb-8">
+      Give once or give regularly, and help us keep showing up for the
+      children who need it.
+    </p>
+    <div class="flex flex-wrap justify-center gap-4">
+      <a href="/donate" class="bg-ivory text-umber px-7 py-3 rounded-full font-semibold hover:bg-marigold transition-colors">Donate</a>
+      <a href="/contact" class="border border-ivory/40 text-ivory px-7 py-3 rounded-full font-semibold hover:bg-ivory/10 transition-colors">Ask us a question</a>
+    </div>
+  </section>
+</Layout>
